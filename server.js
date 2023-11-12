@@ -3,6 +3,7 @@ import colors from "colors";
 import dotenv from "dotenv";
 import morgan from "morgan";
 import cors from "cors";
+import apiRouter from "./routes/api.js";
 
 // configure dotenv
 dotenv.config();
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use(morgan("dev"));
 
 // rest api
+app.use("/api", apiRouter);
 app.get("/", (req, res) => {
   res.send("<h1>Welcome to cartNest</h1>");
 });
