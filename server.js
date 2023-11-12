@@ -4,9 +4,13 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 import cors from "cors";
 import apiRouter from "./routes/api.js";
+import connectDB from "./config/db.js";
 
 // configure dotenv
 dotenv.config();
+
+// connect database
+connectDB();
 
 // rest object
 const app = express();

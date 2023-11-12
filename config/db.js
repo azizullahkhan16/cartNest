@@ -9,7 +9,7 @@ const connectDB = async () => {
       connectionString: process.env.DB_CONNECTSTRING,
     });
 
-    console.log(`Connected to oracledb ${connection}`.bgMagenta.white);
+    console.log(`Connected to oracledb`.bgMagenta.white);
 
     return connection;
   } catch (error) {
