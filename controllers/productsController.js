@@ -70,11 +70,114 @@ export const addProductController = async (req, res) => {
         console.log(e);
         res.status(500).json({ success: false, msg: "server error" });
         return;
+      } finally {
+        if (connection) {
+          try {
+            await connection.close();
+          } catch (error) {
+            console.error("Error closing connection:", error);
+          }
+        }
       }
     });
   } catch (e) {
     console.log(e);
     res.status(500).json({ success: false, msg: "server error" });
     return;
+  }
+};
+
+export const editStockController = async (req, res) => {
+  const email = getJwtEmail(req);
+  try {
+  } catch (error) {}
+};
+
+export const getSellerProductsController = async (req, res) => {
+  const owner = getJwtEmail(req);
+  let connection;
+  try {
+    connection = await connectDB();
+    // Execute the query and fetch all rows
+    const result = await connection.execute(
+      `SELECT *
+     FROM Product_Category
+     WHERE owner = :owner`,
+      [owner]
+    );
+
+    // Convert ResultSet to an array of objects
+    const products = result.rows.map((row) => {
+      const product = {};
+      for (let i = 0; i < result.metaData.length; i++) {
+        product[result.metaData[i].name.toLowerCase()] = row[i];
+      }
+      return product;
+    });
+    res.status(200).json(products);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ success: false, message: "Server error" });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (error) {
+        console.error("Error closing connection: ", error);
+      }
+    }
+  }
+};
+
+export const getSellerSingleProductController = async (req, res) => {
+  const { id } = req.params;
+  const email = getJwtEmail(req);
+  let connection;
+
+  try {
+    connection = await connectDB();
+    const result = await connection.execute(
+      `SELECT *
+      FROM product_category
+      where product_id = :id`,
+      [id]
+    );
+    // Check if the product is not found
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, msg: "Product not found" });
+    }
+
+    const rawProduct = result.rows[0];
+    const product = {
+      _id: rawProduct[0],
+      owner: rawProduct[1],
+      name: rawProduct[2],
+      price: rawProduct[3],
+      stock: rawProduct[4],
+      sold: rawProduct[5],
+      rating: rawProduct[6],
+      description: rawProduct[7],
+      specifications: rawProduct[8],
+      categories: rawProduct[9],
+      customizations: rawProduct[10],
+      images: rawProduct[11],
+      deal_newprice: rawProduct[12],
+    };
+    if (product.owner !== email) {
+      return res.status(400).json({ success: false, msg: "Invalid owner." });
+    } else {
+      return res.json(product);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, msg: "server error" });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (error) {
+        console.error("Error closing connection: ", error);
+      }
+    }
   }
 };
