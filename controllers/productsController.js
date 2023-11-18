@@ -89,8 +89,79 @@ export const addProductController = async (req, res) => {
 
 export const editStockController = async (req, res) => {
   const email = getJwtEmail(req);
+  let connection;
   try {
-  } catch (error) {}
+    connection = await connectDB();
+    const { id, mode, value } = req.body;
+    const result = await connection.execute(
+      `SELECT * 
+      FROM product_category
+      where product_id = :id`,
+      [id]
+    );
+
+    const product = result.rows[0];
+    if (product[1] !== email) {
+      res.status(403).send("Unauthorized");
+      return;
+    }
+
+    if (value < 0 || (mode === "REMOVE" && value > product[4])) {
+      return res.status(400).json({ msg: "Value error" });
+    }
+
+    let query;
+    switch (mode) {
+      case "ADD":
+        query = await connection.execute(
+          `UPDATE product_category
+          SET stock = stock + :value
+          WHERE product_id = :id`,
+          [value, id],
+          { autoCommit: true } // Auto-commit the transaction
+        );
+        break;
+      case "REMOVE":
+        query = await connection.execute(
+          `UPDATE product_category
+          SET stock = stock - :value
+          WHERE product_id = :id`,
+          [value, id],
+          { autoCommit: true } // Auto-commit the transaction
+        );
+        break;
+      case "SET":
+        query = await connection.execute(
+          `UPDATE product_category
+          SET stock = :value
+          WHERE product_id = :id`,
+          [value, id],
+          { autoCommit: true } // Auto-commit the transaction
+        );
+        break;
+      case "ALWAYS AVAILABLE":
+        query = await connection.execute(
+          `UPDATE product_category
+          SET stock = -1
+          WHERE product_id = :id`,
+          [id],
+          { autoCommit: true } // Auto-commit the transaction
+        );
+        break;
+    }
+    res.json({ msg: "Updated successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ msg: "server error" });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (error) {
+        console.error("Error closing connection: ", error);
+      }
+    }
+  }
 };
 
 export const getSellerProductsController = async (req, res) => {
