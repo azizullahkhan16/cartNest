@@ -260,7 +260,7 @@ const SellerSingleProduct = () => {
               {data.images ? (
                 <div className="flex flex-wrap space-x-3">
                   <img
-                    src={`http://127.0.0.1:5000/${data.images}}`}
+                    src={require(`../../../../images/${data.images}`)}
                     alt="prod image"
                     className="w-24 h-24 rounded object-cover border"
                   />

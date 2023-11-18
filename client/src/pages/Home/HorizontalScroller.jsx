@@ -10,6 +10,8 @@ const HorizontalScroller = ({ category }) => {
     []
   );
 
+  console.log(data);
+
   return (
     <>
       <div className=" mx-auto px-2 sm:px-4 py-10  max-w-[1520px] overflow-clip">

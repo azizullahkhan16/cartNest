@@ -3,7 +3,62 @@ import getJwtEmail from "./../utils/getJwtEmail.js";
 import multerInstance from "../multerInstance.js";
 import fs from "fs";
 
-export const getProductsController = async (req, res) => {};
+export const getProductsController = async (req, res) => {
+  let { page, categories, limit } = req.query;
+  page = !isNaN(page) ? page * 1 : 1; // Assuming page numbering starts from 1
+  const category = categories[0];
+
+  const offset = (page - 1) * limit;
+
+  let connection;
+
+  try {
+    connection = await connectDB();
+
+    // Your SQL query to retrieve paginated results
+    const result = await connection.execute(
+      `SELECT *
+      FROM (
+        SELECT
+          product_id, name, price, rating, images,
+          ROWNUM AS rnum
+        FROM
+          product_category
+        WHERE
+          categories = :category
+          AND ROWNUM <= :limit + :offset
+      )
+      WHERE rnum > :offset`,
+      {
+        category,
+        limit: limit,
+        offset,
+      }
+    );
+
+    // Convert ResultSet to an array of objects
+    const products = result.rows.map((row) => {
+      const product = {};
+      for (let i = 0; i < result.metaData.length; i++) {
+        product[result.metaData[i].name.toLowerCase()] = row[i];
+      }
+      return product;
+    });
+    console.log(products);
+    res.json(products);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, msg: "server error" });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (error) {
+        console.error("Error closing connection:", error);
+      }
+    }
+  }
+};
 
 export const getSingleProductController = async (req, res) => {};
 

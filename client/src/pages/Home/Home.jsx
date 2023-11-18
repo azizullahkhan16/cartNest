@@ -3,18 +3,17 @@ import HorizontalScroller from "./HorizontalScroller";
 import CategoriesSection from "./CategoriesSection";
 
 const Home = () => {
-  
   return (
     <>
-    <Hero />
-    <HorizontalScroller category={'Automotive'}/>
-    <CategoriesSection />
-    <HorizontalScroller category={'Others'}/>
-    <HorizontalScroller category = {'Apparel and Fashion'}/>
-    
-    {/* <SearchBar /> */}
+      <Hero />
+      <CategoriesSection />
+      <HorizontalScroller category={"Apparel and Fashion"} />
+      <HorizontalScroller category={"Home and Garden"} />
+      <HorizontalScroller category={"Automotive"} />
+
+      {/* <SearchBar /> */}
     </>
   );
-}
- 
+};
+
 export default Home;

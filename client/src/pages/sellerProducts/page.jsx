@@ -75,12 +75,13 @@ const SellerProducts = () => {
                                 <img
                                   src={
                                     el.images
-                                      ? `${process.env.REACT_APP_URL}/cartNest/images/${el.images}`
+                                      ? require(`../../../../images/${el.images}`)
                                       : prodPlaceholder
                                   }
                                   alt="prod img"
-                                  className="w-16 h-16 aspect-square object-cover rounded "
+                                  className="w-16 h-16 aspect-square object-cover rounded"
                                 />
+
                                 <p className="text-base  ml-2 max-w-[150px]">
                                   {el.name}
                                 </p>
