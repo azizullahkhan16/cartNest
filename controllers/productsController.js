@@ -44,7 +44,6 @@ export const getProductsController = async (req, res) => {
       }
       return product;
     });
-    console.log(products);
     res.json(products);
   } catch (err) {
     console.log(err);
@@ -60,7 +59,39 @@ export const getProductsController = async (req, res) => {
   }
 };
 
-export const getSingleProductController = async (req, res) => {};
+export const getSingleProductController = async (req, res) => {
+  const { id } = req.params;
+  let connection;
+
+  try {
+    connection = await connectDB();
+    const result = await connection.execute(
+      `SELECT * 
+      FROM product_category
+      WHERE product_id = :id`,
+      [id]
+    );
+
+    const product = {};
+    for (let i = 0; i < result.metaData.length; i++) {
+      product[result.metaData[i].name.toLowerCase()] = result.rows[0][i];
+    }
+
+    console.log(product);
+    res.json(product);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, msg: "server error" });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (error) {
+        console.error("Error closing connection:", error);
+      }
+    }
+  }
+};
 
 export const addProductController = async (req, res) => {
   try {
