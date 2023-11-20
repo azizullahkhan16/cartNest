@@ -6,8 +6,7 @@ import fs from "fs";
 export const getProductsController = async (req, res) => {
   let { page, categories, limit } = req.query;
   page = !isNaN(page) ? page * 1 : 1; // Assuming page numbering starts from 1
-  const category = categories[0];
-
+  limit = 8;
   const offset = (page - 1) * limit;
 
   let connection;
@@ -15,9 +14,51 @@ export const getProductsController = async (req, res) => {
   try {
     connection = await connectDB();
 
-    // Your SQL query to retrieve paginated results
-    const result = await connection.execute(
-      `SELECT *
+    // Array to store products for all categories
+    const allProducts = [];
+
+    // Loop through each category
+    let result;
+    if (typeof categories !== "undefined") {
+      for (const category of categories) {
+        // Your SQL query to retrieve paginated results for each category
+
+        result = await connection.execute(
+          `SELECT *
+          FROM (
+            SELECT
+              product_id, name, price, rating, images,
+              ROWNUM AS rnum
+            FROM
+              product_category
+            WHERE
+              categories = :category
+              AND ROWNUM <= :limit + :offset
+          )
+          WHERE rnum > :offset`,
+          {
+            category,
+            limit,
+            offset,
+          }
+        );
+
+        // Convert ResultSet to an array of objects
+        const products = result.rows.map((row) => {
+          const product = {};
+          for (let i = 0; i < result.metaData.length; i++) {
+            product[result.metaData[i].name.toLowerCase()] = row[i];
+          }
+          return product;
+        });
+
+        // Concatenate products for the current category to the allProducts array
+        allProducts.push(...products);
+      }
+      res.json(allProducts);
+    } else {
+      result = await connection.execute(
+        `SELECT *
       FROM (
         SELECT
           product_id, name, price, rating, images,
@@ -25,26 +66,25 @@ export const getProductsController = async (req, res) => {
         FROM
           product_category
         WHERE
-          categories = :category
-          AND ROWNUM <= :limit + :offset
+          ROWNUM <= :limit + :offset
       )
       WHERE rnum > :offset`,
-      {
-        category,
-        limit: limit,
-        offset,
-      }
-    );
+        {
+          limit,
+          offset,
+        }
+      );
 
-    // Convert ResultSet to an array of objects
-    const products = result.rows.map((row) => {
-      const product = {};
-      for (let i = 0; i < result.metaData.length; i++) {
-        product[result.metaData[i].name.toLowerCase()] = row[i];
-      }
-      return product;
-    });
-    res.json(products);
+      // Convert ResultSet to an array of objects
+      const products = result.rows.map((row) => {
+        const product = {};
+        for (let i = 0; i < result.metaData.length; i++) {
+          product[result.metaData[i].name.toLowerCase()] = row[i];
+        }
+        return product;
+      });
+      res.json(products);
+    }
   } catch (err) {
     console.log(err);
     res.status(500).json({ success: false, msg: "server error" });
