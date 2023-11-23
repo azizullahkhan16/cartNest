@@ -38,6 +38,7 @@ export const handleLoginController = async (req, res) => {
             name: user.rows[0][1] + " " + user.rows[0][2],
             phone: user.rows[0][5],
             address: user.rows[0][6],
+            image: user.rows[0][7],
           };
 
           res.status(200).json({ token: JWT, role: "user", userData });

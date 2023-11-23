@@ -114,11 +114,7 @@ const Navbar = () => {
                 className={` -order-1 md:order-1 flex flex-col md:flex-row items-center md:pl-6 gap-2 box-border md:h-full text-base `}
               >
                 <img
-                  src={
-                    auth.userData?.img
-                      ? serverUrl + "/" + auth.userData.img
-                      : profilePlaceholder
-                  }
+                  src={require(`../../../images/${auth.userData?.image}`)}
                   alt=""
                   className="  inline rounded-full w-20 h-20 md:w-10 md:h-10 object-cover"
                 />

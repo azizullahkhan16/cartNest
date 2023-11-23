@@ -1,5 +1,6 @@
 import connectDB from "../config/db.js";
 import getJwtEmail from "./../utils/getJwtEmail.js";
+import multerInstance from "./../multerInstance.js";
 
 export const getProfileController = async (req, res) => {
   let connection;
@@ -8,7 +9,7 @@ export const getProfileController = async (req, res) => {
     const userEmail = getJwtEmail(req);
     const result = await connection.execute(
       `
-      SELECT first_name, last_name, phone, address
+      SELECT first_name, last_name, phone, address, image
       FROM Buyer
       WHERE email = :userEmail`,
       [userEmail]
@@ -22,7 +23,6 @@ export const getProfileController = async (req, res) => {
     for (let i = 0; i < result.metaData.length; i++) {
       profile[result.metaData[i].name.toLowerCase()] = result.rows[0][i];
     }
-
     res.json(profile);
   } catch (error) {
     console.error(error);
@@ -98,4 +98,39 @@ export const getUpdateProfileController = async (req, res) => {
       }
     }
   }
+};
+
+export const getUpdateProfilePicController = async (req, res) => {
+  const upload = multerInstance.single("img");
+  upload(req, res, async (err) => {
+    if (err?.message === "not supported format") {
+      res.status(400).json({ success: false, msg: "not supported format" });
+    } else if (err) {
+      res.status(500).json({ success: false, msg: "server error" });
+    }
+    let connection;
+    try {
+      connection = await connectDB();
+      // const filename = res.req.file.filename;
+      const filename = req.file?.filename;
+      console.log(filename);
+      const email = getJwtEmail(req);
+
+      // store filename in DB
+      await connection.execute(
+        `UPDATE Buyer
+        SET image = :filename
+        WHERE email = :email`,
+        [filename, email]
+      );
+      await connection.commit(); // Add this line
+      res.json({
+        success: true,
+        msg: "Profile picture updated successfully",
+        img: filename,
+      });
+    } catch (e) {
+      res.status(500).json({ success: false, msg: "server error" });
+    }
+  });
 };

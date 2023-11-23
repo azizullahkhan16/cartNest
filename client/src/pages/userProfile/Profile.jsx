@@ -25,6 +25,7 @@ const Profile = () => {
     privateAxios,
     []
   );
+  console.log(data);
   useEffect(() => {
     if (data) {
       setFirstName(data.first_name);
@@ -132,13 +133,7 @@ const Profile = () => {
                     onChange={handleSetImage}
                   />
                   <img
-                    src={
-                      img
-                        ? URL.createObjectURL(img)
-                        : data.profilePicture
-                        ? serverUrl + "/" + data.profilePicture
-                        : prodPlaceholder
-                    }
+                    src={require(`../../../../images/${data.image}`)}
                     alt=""
                     className="aspect-square w-40 h-40 rounded-full object-cover"
                   />
