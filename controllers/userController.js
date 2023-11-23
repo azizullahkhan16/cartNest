@@ -8,7 +8,7 @@ export const getProfileController = async (req, res) => {
     const userEmail = getJwtEmail(req);
     const result = await connection.execute(
       `
-      SELECT *
+      SELECT first_name, last_name, phone, address
       FROM Buyer
       WHERE email = :userEmail`,
       [userEmail]
@@ -23,11 +23,72 @@ export const getProfileController = async (req, res) => {
       profile[result.metaData[i].name.toLowerCase()] = result.rows[0][i];
     }
 
-    console.log(profile);
     res.json(profile);
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, msg: "Server error" });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (error) {
+        console.error("Error closing connection: ", error);
+      }
+    }
+  }
+};
+
+export const getUpdateProfileController = async (req, res) => {
+  let connection;
+  try {
+    const { firstName, lastName, phone, address1, address2 } = req.body;
+    const userEmail = getJwtEmail(req);
+    connection = await connectDB();
+
+    const query = (key, value) => {
+      // If the value is a string, enclose it in single quotes; otherwise, use as is
+      const sanitizedValue = typeof value === "string" ? `'${value}'` : value;
+
+      return `UPDATE Buyer
+              SET ${key} = ${sanitizedValue}
+              WHERE email = :userEmail`;
+    };
+
+    const result = await connection.execute(
+      `SELECT * 
+      FROM Buyer
+      WHERE email = :userEmail`,
+      [userEmail]
+    );
+
+    console.log(result.rows[0][1] + firstName);
+    if (firstName && result.rows[0][1] !== firstName) {
+      await connection.execute(query("first_name", firstName), [userEmail]);
+      await connection.commit(); // Add this line
+    }
+
+    console.log(result.rows[0][2] + lastName);
+    if (lastName && result.rows[0][2] !== lastName) {
+      await connection.execute(query("last_name", lastName), [userEmail]);
+      await connection.commit(); // Add this line
+    }
+
+    console.log(result.rows[0][5] + " " + phone);
+    if (phone && result.rows[0][5] !== phone) {
+      await connection.execute(query("phone", phone), [userEmail]);
+      await connection.commit(); // Add this line
+    }
+
+    console.log(result.rows[0][6] + address1);
+    if (address1 && result.rows[0][6] !== address1) {
+      await connection.execute(query("address", address1), [userEmail]);
+      await connection.commit(); // Add this line
+    }
+
+    res.json({ success: true, msg: "Info updated successfully" });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ success: false, msg: "server error" });
   } finally {
     if (connection) {
       try {

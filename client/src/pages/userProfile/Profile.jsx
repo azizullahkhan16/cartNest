@@ -27,10 +27,10 @@ const Profile = () => {
   );
   useEffect(() => {
     if (data) {
-      setFirstName(data.firstName);
-      setLastName(data.lastName);
+      setFirstName(data.first_name);
+      setLastName(data.last_name);
       setPhone(data.phone);
-      setAddress1(data.address1);
+      setAddress1(data.address);
       setAddress2(data.address2);
     }
   }, [data]);
@@ -38,10 +38,10 @@ const Profile = () => {
   useEffect(() => {
     if (data) {
       if (
-        data.firstName !== firstName ||
-        data.lastName !== lastName ||
+        data.first_name !== firstName ||
+        data.last_name !== lastName ||
         data.phone !== phone ||
-        data.address1 !== address1 ||
+        data.address !== address1 ||
         data.address2 !== address2
       ) {
         setChanged(true);
@@ -99,6 +99,7 @@ const Profile = () => {
       setAuth((p) => {
         return { ...p, userData: { ...p.userData, addresses } };
       });
+      setChanged(false);
     } catch (error) {}
   };
 
