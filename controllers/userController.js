@@ -131,6 +131,14 @@ export const getUpdateProfilePicController = async (req, res) => {
       });
     } catch (e) {
       res.status(500).json({ success: false, msg: "server error" });
+    } finally {
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (error) {
+          console.error("Error closing connection: ", error);
+        }
+      }
     }
   });
 };
