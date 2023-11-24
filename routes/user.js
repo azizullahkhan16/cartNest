@@ -5,7 +5,10 @@ import {
   getUpdateProfileController,
   getUpdateProfilePicController,
 } from "../controllers/userController.js";
-import { getOrderController } from "../controllers/ordersController.js";
+import {
+  getOrderController,
+  getSingleOrderController,
+} from "../controllers/ordersController.js";
 
 const userRouter = express.Router();
 
@@ -15,4 +18,5 @@ userRouter.get("/profile", getProfileController);
 userRouter.post("/updateinfo", getUpdateProfileController);
 userRouter.post("/updatepfp", getUpdateProfilePicController);
 userRouter.get("/orders", getOrderController);
+userRouter.get("/orders/:id", getSingleOrderController);
 export default userRouter;
