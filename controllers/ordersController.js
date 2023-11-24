@@ -24,7 +24,15 @@ export const getOrderController = async (req, res) => {
     }
     delete orders.password;
     console.log(orders);
-    res.json(orders);
+    res.json([
+      {
+        date: orders.order_date,
+        totalCost: orders.total_cost,
+        status: orders.status,
+        productsElements: [orders.name],
+        _id: orders.order_id,
+      },
+    ]);
   } catch (error) {
     res.status(500).json({ msg: "server error" });
     console.log(error);
