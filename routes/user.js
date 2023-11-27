@@ -12,6 +12,7 @@ import {
 import {
   addCartController,
   getCartController,
+  removeCartController,
 } from "../controllers/cartController.js";
 
 const userRouter = express.Router();
@@ -25,4 +26,5 @@ userRouter.get("/orders", getOrderController);
 userRouter.get("/orders/:id", getSingleOrderController);
 userRouter.get("/cart", getCartController);
 userRouter.post("/addtocart", addCartController);
+userRouter.post("/removefromcart", removeCartController);
 export default userRouter;

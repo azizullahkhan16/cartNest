@@ -79,3 +79,23 @@ export const addCartController = async (req, res) => {
     }
   }
 };
+
+export const removeCartController = async (req, res) => {
+  let connection;
+  const email = getJwtEmail(req);
+
+  try {
+    connection = await connectDB();
+  } catch (error) {
+    console.error("Error in addCartController:", error);
+    res.status(500).json({ msg: "Server error" });
+  } finally {
+    try {
+      if (connection) {
+        await connection.close();
+      }
+    } catch (error) {
+      console.error("Error closing connection:", error);
+    }
+  }
+};
