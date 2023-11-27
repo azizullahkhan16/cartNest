@@ -29,13 +29,14 @@ const ProductPage = () => {
   const [customizations, setCustomizations] = useState({});
   const [cartButtonLoading, setCartButtonLoading] = useState(false);
   const [wishlistButtonLoading, setWishlistButtonLoading] = useState(false);
+  console.log(data);
 
   const inWishlist = useMemo(
-    () => auth?.userData?.wishlist?.includes(data?._id),
+    () => auth?.userData?.wishlist?.includes(data?.product_id),
     [auth, data]
   );
   const inCart = useMemo(
-    () => auth?.userData?.cart?.map((el) => el.id).includes(data?._id),
+    () => auth?.userData?.cart?.map((el) => el.id).includes(data?.product_id),
     [auth, data]
   );
 
@@ -58,16 +59,19 @@ const ProductPage = () => {
     try {
       setAlert("");
       setCartButtonLoading(true);
-      const item = { id: data?._id, customizations };
+      const item = { id: data?.product_id, customizations };
+      console.log(item);
       const newCart = [...auth.userData.cart];
       //change the behaviour of the function to (add to cart ) or (remove from cart) according to state
       if (!inCart) {
         await privateAxios.post("/user/addtocart", { item });
         newCart.push(item);
       } else {
-        await privateAxios.post("/user/removefromcart", { id: data._id });
+        await privateAxios.post("/user/removefromcart", {
+          id: data.product_id,
+        });
         newCart.splice(
-          newCart.findIndex((el) => el.id === data._id),
+          newCart.findIndex((el) => el.id === data.product_id),
           1
         );
       }
@@ -101,11 +105,15 @@ const ProductPage = () => {
       setWishlistButtonLoading(true);
       const newWishlist = [...auth.userData.wishlist];
       if (!inWishlist) {
-        await privateAxios.post("/user/addtowishlist", { id: data?._id });
-        newWishlist.push(data?._id);
+        await privateAxios.post("/user/addtowishlist", {
+          id: data?.product_id,
+        });
+        newWishlist.push(data?.product_id);
       } else {
-        await privateAxios.post("/user/removefromwishlist", { id: data?._id });
-        newWishlist.splice(newWishlist.indexOf(data?._id), 1);
+        await privateAxios.post("/user/removefromwishlist", {
+          id: data?.product_id,
+        });
+        newWishlist.splice(newWishlist.indexOf(data?.product_id), 1);
       }
       const authWithEditedWishlist = {
         ...auth,

@@ -23,7 +23,6 @@ export const getOrderController = async (req, res) => {
       orders[result.metaData[i].name.toLowerCase()] = result.rows[0][i];
     }
     delete orders.password;
-    console.log(orders);
     res.json([
       {
         date: orders.order_date,
@@ -73,7 +72,6 @@ export const getSingleOrderController = async (req, res) => {
     }
     delete order.password;
 
-    console.log(order);
     res.json({
       date: order.order_date,
       totalCost: order.total_cost,

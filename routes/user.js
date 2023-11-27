@@ -9,6 +9,10 @@ import {
   getOrderController,
   getSingleOrderController,
 } from "../controllers/ordersController.js";
+import {
+  addCartController,
+  getCartController,
+} from "../controllers/cartController.js";
 
 const userRouter = express.Router();
 
@@ -19,4 +23,6 @@ userRouter.post("/updateinfo", getUpdateProfileController);
 userRouter.post("/updatepfp", getUpdateProfilePicController);
 userRouter.get("/orders", getOrderController);
 userRouter.get("/orders/:id", getSingleOrderController);
+userRouter.get("/cart", getCartController);
+userRouter.post("/addtocart", addCartController);
 export default userRouter;

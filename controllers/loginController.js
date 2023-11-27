@@ -22,10 +22,44 @@ export const handleLoginController = async (req, res) => {
       connection = await connectDB();
       const user = await connection.execute(
         `SELECT *
-            FROM buyer
-            where email = :email`,
+        FROM buyer
+        WHERE buyer.email = :email
+            `,
         [email]
       );
+      const cart = await connection.execute(
+        `SELECT *
+        FROM cart
+        WHERE cart.userEmail = :email
+            `,
+        [email]
+      );
+      const wishList = await connection.execute(
+        `SELECT *
+        FROM wishlist
+        WHERE wishlist.userEmail = :email
+            `,
+        [email]
+      );
+
+      const userCart = {};
+      if (cart?.rows.length != 0) {
+        for (let i = 0; i < cart.metaData.length; i++) {
+          userCart[cart.metaData[i].name.toLowerCase()] = cart.rows[0][i];
+        }
+      }
+
+      const userWish = {};
+      if (wishList?.rows.length) {
+        for (let i = 0; i < wishList.metaData.length; i++) {
+          userWish[wishList.metaData[i].name.toLowerCase()] =
+            wishList.rows[0][i];
+        }
+      }
+      console.log(user.rows[0]);
+      console.log(userCart);
+      console.log(userWish);
+
       if (user) {
         const verified = await bcrypt.compare(password, user.rows[0][4]);
         if (verified) {
@@ -39,8 +73,9 @@ export const handleLoginController = async (req, res) => {
             phone: user.rows[0][5],
             address: user.rows[0][6],
             image: user.rows[0][7],
+            cart: cart.rows,
+            wishlist: wishList.rows,
           };
-
           res.status(200).json({ token: JWT, role: "user", userData });
         } else {
           res
