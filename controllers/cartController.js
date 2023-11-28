@@ -6,17 +6,48 @@ export const getCartController = async (req, res) => {
   const email = getJwtEmail(req);
   try {
     connection = await connectDB();
-    const result = await connection.execute(
+    const cartResult = await connection.execute(
       `
     SELECT * 
-    FROM cart c
-    LEFT JOIN product_category pc
-    ON pc.product_id = c.product_id
-    WHERE c.userEmail = :email`,
+    FROM cart
+    WHERE userEmail = :email`,
       [email]
     );
 
-    console.log(result.rows);
+    // Convert ResultSet to an array of objects
+    const carts = cartResult.rows.map((row) => {
+      const cart = {};
+      for (let i = 0; i < cartResult.metaData.length; i++) {
+        cart[cartResult.metaData[i].name.toLowerCase()] = row[i];
+      }
+      return cart;
+    });
+
+    const productId = cartResult.rows[0][3];
+
+    const productResult = await connection.execute(
+      `SELECT *
+      FROM product_category
+      WHERE product_id = :productId`,
+      [productId]
+    );
+
+    // Convert ResultSet to an array of objects
+    const products = productResult.rows.map((row) => {
+      const product = {};
+      for (let i = 0; i < productResult.metaData.length; i++) {
+        product[productResult.metaData[i].name.toLowerCase()] = row[i];
+      }
+      return product;
+    });
+
+    console.log(carts);
+    console.log(products);
+    res.json({
+      cart: carts,
+      products: products,
+      _id: productId,
+    });
   } catch (error) {
     res.status(500).json({ msg: "server error" });
     console.log(error);
