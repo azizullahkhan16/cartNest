@@ -83,11 +83,27 @@ export const addCartController = async (req, res) => {
 export const removeCartController = async (req, res) => {
   let connection;
   const email = getJwtEmail(req);
+  const { id, refresh } = req.body;
 
   try {
     connection = await connectDB();
+    await connection.execute(
+      `DELETE FROM cart
+      WHERE product_id = :id and userEmail = :email`,
+      [id, email],
+      { autoCommit: true } // Auto-commit the transaction
+    );
+
+    if (refresh) {
+      return getCartController(req, res);
+    }
+
+    res.json({
+      success: "true",
+      msg: "product removed from cart successfully",
+    });
   } catch (error) {
-    console.error("Error in addCartController:", error);
+    console.error("Error in removeCartController:", error);
     res.status(500).json({ msg: "Server error" });
   } finally {
     try {
