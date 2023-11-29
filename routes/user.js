@@ -14,6 +14,11 @@ import {
   getCartController,
   removeCartController,
 } from "../controllers/cartController.js";
+import {
+  addToWishlistController,
+  getWishlistController,
+  removeFromWishlistController,
+} from "../controllers/wishlistController.js";
 
 const userRouter = express.Router();
 
@@ -27,4 +32,7 @@ userRouter.get("/orders/:id", getSingleOrderController);
 userRouter.get("/cart", getCartController);
 userRouter.post("/addtocart", addCartController);
 userRouter.post("/removefromcart", removeCartController);
+userRouter.get("/wishlist", getWishlistController);
+userRouter.post("/addtowishlist", addToWishlistController);
+userRouter.post("/removefromwishlist", removeFromWishlistController);
 export default userRouter;
