@@ -9,13 +9,14 @@ const CartItem = ({ el, customizations, setData }) => {
   const [loadingRemove, setLoadingRemove] = useState(false);
 
   const handleRemove = async () => {
-    const id = el._id;
+    const id = el.product_id;
     setLoadingRemove(true);
     try {
       const res = await privateAxios.post("/user/removefromcart", {
         id,
         refresh: true,
       });
+      console.log(res.data);
       setData(res.data);
     } catch (err) {
       console.log("err:" + err.message);
@@ -28,7 +29,7 @@ const CartItem = ({ el, customizations, setData }) => {
       {/* <h2 className="text-lg font-semibold md:hidden"> {el.name}</h2> */}
       <div className="flex  flex-row flex-wrap  gap-3 items-stretch mb-3">
         <img
-          src={el.images[0] ? serverUrl + "/" + el.images[0] : prodPlaceholder}
+          src={require(`../../../../images/${el.images}`)}
           alt=""
           className="border self-center aspect-square w-36 mx-auto"
         />

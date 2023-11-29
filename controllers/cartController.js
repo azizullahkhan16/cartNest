@@ -23,27 +23,33 @@ export const getCartController = async (req, res) => {
       return cart;
     });
 
-    const productId = cartResult.rows[0][3];
+    let products = [];
+    let productId;
+    if (cartResult.rows.length != 0) {
+      let productId;
+      for (let i = 0; i < cartResult.rows.length; i++) {
+        productId = cartResult.rows[i][3];
 
-    const productResult = await connection.execute(
-      `SELECT *
-      FROM product_category
-      WHERE product_id = :productId`,
-      [productId]
-    );
+        const productResult = await connection.execute(
+          `SELECT *
+          FROM product_category
+          WHERE product_id = :productId`,
+          [productId]
+        );
 
-    // Convert ResultSet to an array of objects
-    const products = productResult.rows.map((row) => {
-      const product = {};
-      for (let i = 0; i < productResult.metaData.length; i++) {
-        product[productResult.metaData[i].name.toLowerCase()] = row[i];
+        const product = {};
+        for (let i = 0; i < productResult.metaData.length; i++) {
+          product[productResult.metaData[i].name.toLowerCase()] =
+            productResult.rows[0][i];
+        }
+
+        products.push(product);
       }
-      return product;
-    });
+    }
 
     console.log(carts);
     console.log(products);
-    res.json({
+    return res.json({
       cart: carts,
       products: products,
       _id: productId,
@@ -116,6 +122,8 @@ export const removeCartController = async (req, res) => {
   const email = getJwtEmail(req);
   const { id, refresh } = req.body;
 
+  console.log(id + " " + refresh);
+
   try {
     connection = await connectDB();
     await connection.execute(
@@ -124,6 +132,7 @@ export const removeCartController = async (req, res) => {
       [id, email],
       { autoCommit: true } // Auto-commit the transaction
     );
+    await connection.commit();
 
     if (refresh) {
       return getCartController(req, res);
