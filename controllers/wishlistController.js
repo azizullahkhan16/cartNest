@@ -6,6 +6,38 @@ export const getWishlistController = async (req, res) => {
   const email = getJwtEmail(req);
   try {
     connection = await connectDB();
+
+    const wishlistResult = await connection.execute(
+      `SELECT *
+      FROM wishlist
+      WHERE userEmail = :email`,
+      [email]
+    );
+
+    let products = [];
+    if (wishlistResult.rows.length != 0) {
+      let productId;
+      for (let i = 0; i < wishlistResult.rows.length; i++) {
+        productId = wishlistResult.rows[i][3];
+
+        const productResult = await connection.execute(
+          `SELECT *
+          FROM product_category
+          WHERE product_id = :productId`,
+          [productId]
+        );
+
+        const product = {};
+        for (let i = 0; i < productResult.metaData.length; i++) {
+          product[productResult.metaData[i].name.toLowerCase()] =
+            productResult.rows[0][i];
+        }
+
+        products.push(product);
+      }
+    }
+
+    res.json(products);
   } catch (error) {
     res.status(500).json({ msg: "server error" });
     console.log(error);
