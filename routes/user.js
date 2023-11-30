@@ -8,6 +8,7 @@ import {
 import {
   getOrderController,
   getSingleOrderController,
+  placeOrderController,
 } from "../controllers/ordersController.js";
 import {
   addCartController,
@@ -35,4 +36,5 @@ userRouter.post("/removefromcart", removeCartController);
 userRouter.get("/wishlist", getWishlistController);
 userRouter.post("/addtowishlist", addToWishlistController);
 userRouter.post("/removefromwishlist", removeFromWishlistController);
+userRouter.post("/placeorder", placeOrderController);
 export default userRouter;

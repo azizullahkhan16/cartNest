@@ -24,8 +24,8 @@ export const getCartController = async (req, res) => {
     });
 
     let products = [];
+    let productId;
     if (cartResult.rows.length != 0) {
-      let productId;
       for (let i = 0; i < cartResult.rows.length; i++) {
         productId = cartResult.rows[i][3];
 
