@@ -132,7 +132,7 @@ export const removeCartController = async (req, res) => {
       [id, email],
       { autoCommit: true } // Auto-commit the transaction
     );
-    await connection.commit();
+    //await connection.commit();
 
     if (refresh) {
       return getCartController(req, res);

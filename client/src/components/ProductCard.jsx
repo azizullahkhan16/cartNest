@@ -26,11 +26,15 @@ const ProductCard = ({ data }) => {
     try {
       const newWishlist = [...auth.userData.wishlist];
       if (!inWishlist) {
-        await privateAxios.post("/user/addtowishlist", { id: data?._id });
-        newWishlist.push(data?._id);
+        await privateAxios.post("/user/addtowishlist", {
+          id: data?.product_id,
+        });
+        newWishlist.push(data?.product_id);
       } else {
-        await privateAxios.post("/user/removefromwishlist", { id: data?._id });
-        newWishlist.splice(newWishlist.indexOf(data?._id), 1);
+        await privateAxios.post("/user/removefromwishlist", {
+          id: data?.product_id,
+        });
+        newWishlist.splice(newWishlist.indexOf(data?.product_id), 1);
       }
       const authWithEditedWishlist = {
         ...auth,

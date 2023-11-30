@@ -66,4 +66,33 @@ export const addToWishlistController = async (req, res) => {
   }
 };
 
-export const removeFromWishlistController = async (req, res) => {};
+export const removeFromWishlistController = async (req, res) => {
+  let connection;
+  const { id } = req.body;
+  const email = getJwtEmail(req);
+  try {
+    connection = await connectDB();
+    await connection.execute(
+      `DELETE FROM wishlist
+      WHERE product_id = :id and userEmail = :email`,
+      [id, email],
+      { autoCommit: true } // Auto-commit the transaction
+    );
+    //await connection.commit();
+    res.json({
+      success: "true",
+      msg: "Product removed from wishlist successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ msg: "server error" });
+    console.log(error);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (error) {
+        console.error("Error closing connection: ", error);
+      }
+    }
+  }
+};
