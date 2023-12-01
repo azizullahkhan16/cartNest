@@ -1,5 +1,4 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { ReactComponent as Logo } from "../assets/logo.svg";
 import { AiOutlineClose, AiOutlineMenu } from "react-icons/ai";
 import { useState, useEffect } from "react";
 import useAuth from "../hooks/useAuth";
@@ -46,7 +45,7 @@ const Navbar = () => {
           to="/"
           className="h-2/3 w-32 flex justify-center items-center outline-none"
         >
-          <Logo className="h-fit w-full" />
+          <img src={require("../assets/images/cart-logo.png")} />
         </Link>
 
         <div
