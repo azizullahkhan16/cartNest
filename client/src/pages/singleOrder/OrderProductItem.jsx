@@ -1,7 +1,6 @@
 import prodPlaceholder from "../../assets/images/prodPlaceholder.jpg";
 const OrderProductItem = ({ product, customizations }) => {
   const serverUrl = process.env.REACT_APP_URL;
-  console.log(product);
   return (
     <div className="w-full flex flex-col sm:flex-row gap-3 py-4 max-w-2xl ">
       <div className="grow flex flex-nowrap  gap-4 items-center  font-semibold font-nunito">

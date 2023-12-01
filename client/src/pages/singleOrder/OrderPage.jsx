@@ -18,6 +18,7 @@ const OrderPage = () => {
     privateAxios,
     []
   );
+  console.log(data);
   const inStage = (stage, currentStage) => {
     const stages = ["Pending", "Processing", "Shipping", "Delivered"];
     return stages.indexOf(currentStage) >= stages.indexOf(stage);

@@ -154,3 +154,31 @@ export const removeCartController = async (req, res) => {
     }
   }
 };
+
+export const clearCartController = async (req, res) => {
+  let connection;
+  const email = getJwtEmail(req);
+  try {
+    connection = await connectDB();
+
+    await connection.execute(
+      `DELETE FROM cart
+      WHERE userEmail = :email`,
+      [email],
+      { autoCommit: true }
+    );
+
+    res.json({ success: true, msg: "Clear cart successfully" });
+  } catch (error) {
+    console.error("Error in removeCartController:", error);
+    res.status(500).json({ msg: "Server error" });
+  } finally {
+    try {
+      if (connection) {
+        await connection.close();
+      }
+    } catch (error) {
+      console.error("Error closing connection:", error);
+    }
+  }
+};

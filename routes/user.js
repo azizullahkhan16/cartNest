@@ -12,6 +12,7 @@ import {
 } from "../controllers/ordersController.js";
 import {
   addCartController,
+  clearCartController,
   getCartController,
   removeCartController,
 } from "../controllers/cartController.js";
@@ -33,6 +34,7 @@ userRouter.get("/orders/:id", getSingleOrderController);
 userRouter.get("/cart", getCartController);
 userRouter.post("/addtocart", addCartController);
 userRouter.post("/removefromcart", removeCartController);
+userRouter.post("/clearcart", clearCartController);
 userRouter.get("/wishlist", getWishlistController);
 userRouter.post("/addtowishlist", addToWishlistController);
 userRouter.post("/removefromwishlist", removeFromWishlistController);

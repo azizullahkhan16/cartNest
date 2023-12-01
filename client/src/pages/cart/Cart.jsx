@@ -5,6 +5,7 @@ import { AiOutlineCloseCircle } from "react-icons/ai";
 import { useEffect, useState } from "react";
 import CartItem from "./CartItem";
 import useAuth from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
   const privateAxios = usePrivateAxios();
@@ -20,6 +21,7 @@ const Cart = () => {
   const [checkout, setCheckout] = useState(false);
   const [checkoutAlert, setCheckoutAlert] = useState("");
   const [cartAlert, setCartAlert] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     // console.log("data: " +data);
@@ -96,6 +98,14 @@ const Cart = () => {
     setCheckoutAlert("");
     try {
       await privateAxios.post("/user/placeorder", { address });
+
+      // Clear the cart on the server
+      await privateAxios.post("/user/clearcart");
+
+      // Update local state or context to reflect an empty cart
+      setData({ cart: [], products: [] });
+
+      navigate("/orders");
     } catch (err) {}
   };
 

@@ -9,8 +9,9 @@ export const getOrderController = async (req, res) => {
     const result = await connection.execute(
       `SELECT *
       FROM (
-          (orders o
-          LEFT JOIN product_category pc ON pc.product_id = o.product_id)
+          ((orders o
+          LEFT JOIN order_items oi ON oi.order_id = o.order_id)
+          LEFT JOIN product_category pc ON pc.product_id = oi.product_id)
           LEFT JOIN seller s ON s.email = o.owner
       )
       WHERE o.owner = :email
@@ -18,20 +19,31 @@ export const getOrderController = async (req, res) => {
       [email]
     );
 
-    const orders = {};
-    for (let i = 0; i < result.metaData.length; i++) {
-      orders[result.metaData[i].name.toLowerCase()] = result.rows[0][i];
+    if (result.rows.length != 0) {
+      const orders = {};
+      for (let i = 0; i < result.metaData.length; i++) {
+        orders[result.metaData[i].name.toLowerCase()] = result.rows[0][i];
+      }
+      delete orders.password;
+      console.log(orders.price);
+      res.json([
+        {
+          date: orders.order_date,
+          totalCost: orders.total_cost,
+          status: orders.status,
+          productsElements: [
+            {
+              name: orders.name,
+              price: orders.price,
+              images: orders.images,
+            },
+          ],
+          _id: orders.order_id,
+        },
+      ]);
+    } else {
+      res.json({ msg: "No orders found" });
     }
-    delete orders.password;
-    res.json([
-      {
-        date: orders.order_date,
-        totalCost: orders.total_cost,
-        status: orders.status,
-        productsElements: [orders.name],
-        _id: orders.order_id,
-      },
-    ]);
   } catch (error) {
     res.status(500).json({ msg: "server error" });
     console.log(error);
@@ -56,9 +68,11 @@ export const getSingleOrderController = async (req, res) => {
 
     const result = await connection.execute(
       `SELECT *
-         FROM ((orders o
+         FROM (((orders o
+          LEFT JOIN order_items oi
+           ON o.order_id = oi.order_id)
          LEFT JOIN product_category pc
-         ON pc.product_id = o.product_id)
+         ON pc.product_id = oi.product_id)
          LEFT JOIN seller s
          ON s.email = o.owner)
          WHERE o.owner = :email AND o.order_id = :id
@@ -71,6 +85,8 @@ export const getSingleOrderController = async (req, res) => {
       order[result.metaData[i].name.toLowerCase()] = result.rows[0][i];
     }
     delete order.password;
+
+    console.log(order);
 
     res.json({
       date: order.order_date,
@@ -174,14 +190,6 @@ export const placeOrderController = async (req, res) => {
     console.log(products);
     console.log(orders);
 
-    // for (let i = 0; i < products.length; i++) {
-    //   const order_id = cart;
-    //   await connection.execute(
-    //     `INSERT INTO order_items (order_id, product_id, count, unit_price, total_price)
-    //     values ()
-    //     `
-    //   );
-    // }
     const finalOrders = [];
     let orderEntry;
     const currentDate = new Date();
