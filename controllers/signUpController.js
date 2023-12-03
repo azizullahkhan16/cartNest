@@ -61,8 +61,30 @@ export const handleSignUpController = async (req, res) => {
 };
 
 export const handleSellerSignUpController = async (req, res) => {
-  const { firstName, lastName, email, password, phone, address } = req.body;
-  if (firstName && lastName && email && password && phone && address) {
+  const {
+    firstName,
+    lastName,
+    email,
+    password,
+    phone,
+    address,
+    store,
+    storeType,
+    storeDesp,
+  } = req.body;
+
+  console.log(req.body);
+  if (
+    firstName &&
+    lastName &&
+    email &&
+    password &&
+    phone &&
+    address &&
+    store &&
+    storeType &&
+    storeDesp
+  ) {
     const emailTest = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const validEmail = emailTest.test(email);
     const validPassword = password.length > 7;

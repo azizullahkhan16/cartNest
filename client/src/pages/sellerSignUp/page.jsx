@@ -5,6 +5,9 @@ import { BsThreeDots } from "react-icons/bs";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [store, setStore] = useState("");
+  const [storeDesp, setStoreDesp] = useState("");
+  const [storeType, setStoreType] = useState("");
   const [address, setAddress] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -31,6 +34,9 @@ const Login = () => {
         password,
         phone,
         address,
+        store,
+        storeType,
+        storeDesp,
       });
       navigate("/seller/login", { replace: true });
     } catch (error) {
@@ -116,6 +122,56 @@ const Login = () => {
                 }}
                 className="w-full  px-3 py-1 my-2 rounded-full outline-none border shadow-sm"
               />
+            </div>
+            <div className="flex justify-center gap-2 my-2 ">
+              <div>
+                <label htmlFor="store" className="font-bold px-1">
+                  Store name :
+                </label>
+                <input
+                  type="text"
+                  autoComplete="off"
+                  id="store"
+                  value={store}
+                  onChange={(e) => {
+                    setStore(e.target.value);
+                  }}
+                  className="w-full  px-3 py-1 rounded-full outline-none border shadow-sm"
+                />
+              </div>
+              <div>
+                <label htmlFor="storeType" className="font-bold px-1">
+                  Store type:
+                </label>
+                <select
+                  id="storeType"
+                  value={storeType}
+                  onChange={(e) => {
+                    setStoreType(e.target.value);
+                  }}
+                  className="w-full px-3 py-1 rounded-full outline-none border shadow-sm"
+                >
+                  <option value="clothing">None</option>
+                  <option value="clothing">Clothing Store</option>
+                  <option value="electronics">Electronics Store</option>
+                  <option value="grocery">Grocery Store</option>
+                  <option value="bookstore">Bookstore</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label htmlFor="storeDesp" className="font-bold px-1">
+                Store Description:
+              </label>
+              <textarea
+                id="storeDesp"
+                value={storeDesp}
+                onChange={(e) => {
+                  setStoreDesp(e.target.value);
+                }}
+                className="w-full px-3 py-1 my-2 rounded outline-none border shadow-sm"
+                rows="4" // You can adjust the number of rows as needed
+              ></textarea>
             </div>
             <div>
               <label htmlFor="email" className="font-bold px-1">
