@@ -135,54 +135,28 @@ export const getSingleProductController = async (req, res) => {
 
 export const addProductController = async (req, res) => {
   try {
-    const upload = multerInstance.array("images", 4);
+    const upload = multerInstance.single("image"); // Change to single instead of array
     upload(req, res, async (err) => {
       if (err?.message === "not supported format") {
         res.status(400).json({ success: false, msg: "not supported format" });
         return;
       } else if (err) {
         console.log(err);
-        res.status(500).json({ success: false, msg: "serverrrrrr error" });
+        res.status(500).json({ success: false, msg: "server error" });
         return;
       }
 
-      const {
-        name,
-        price,
-        stock,
-        categories,
-        description,
-        specifications,
-        customizations,
-      } = JSON.parse(req.body?.productData);
-      //   if (
-      //     !Array.isArray(categories) ||
-      //     categories.filter((el) => !typeof el === "string").length > 0
-      //   ) {
-      //     req.files?.forEach((el) => {
-      //       const filename = el.filename;
-      //       console.log(filename);
-      //       fs.unlink("./images/" + filename, (err) => {
-      //         if (err) {
-      //           console.log(err);
-      //           console.log("failed to remove file: " + filename);
-      //         }
-      //       });
-      //     });
-      //     res.status(400).send("invalid data");
-      //     return;
-      //   }
-
+      const { name, price, stock, category, description } = JSON.parse(
+        req.body?.productData
+      );
       const owner = getJwtEmail(req);
-      const images = req.files?.map((el) => el.filename);
+      const image = req.file?.filename; // Use req.file instead of req.files
 
-      const category = categories[0];
-      const image = images[0];
       let connection;
       try {
         connection = await connectDB();
         const isCreated = await connection.execute(
-          `INSERT INTO PRODUCT_CATEGORY (owner, name, price, stock, description, categories, images)
+          `INSERT INTO PRODUCT_CATEGORY (owner, name, price, stock, description, category, image)
             VALUES (:owner, :name, :price, :stock, :description, :category, :image)`,
           [owner, name, price, stock, description, category, image],
           { autoCommit: true } // Auto-commit the transaction

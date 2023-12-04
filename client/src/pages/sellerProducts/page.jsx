@@ -14,6 +14,8 @@ const SellerProducts = () => {
     []
   );
 
+  console.log(data);
+
   return (
     <>
       {error ? (
@@ -36,26 +38,25 @@ const SellerProducts = () => {
               </Link>
             </div>
 
-            {/* <div className="flex flex-col overflow-x-auto mt-5 [&>*:not(last-child)]:border-b"> */}
             <div className="grid w-full mt-5 min-w-0 rounded-xl overflow-hidden shadow-md border">
-              <div className="w-full overflow-x-auto  noscrollbar">
+              <div className="w-full overflow-x-auto noscrollbar">
                 <table className="w-full min-w-max text-left">
                   <thead className="border-b text-lg">
                     <tr>
                       <th scope="col" className="p-3 font-medium">
-                        product
+                        Product
                       </th>
                       <th scope="col" className="p-3 font-medium">
-                        selling for
+                        Selling For
                       </th>
                       <th scope="col" className="p-3 font-medium">
-                        stock
+                        Stock
                       </th>
                       <th scope="col" className="p-3 font-medium">
-                        units sold
+                        Units Sold
                       </th>
                       <th scope="col" className="p-3 font-medium">
-                        Go to
+                        Go To
                       </th>
                     </tr>
                   </thead>
@@ -67,60 +68,62 @@ const SellerProducts = () => {
                         </td>
                       </tr>
                     ) : data?.length > 0 ? (
-                      data.map((el, idx) => {
-                        return (
-                          <tr key={idx}>
-                            <td className="p-3">
-                              <div className="flex items-center">
-                                <img
-                                  src={
-                                    el.images
-                                      ? require(`../../../../images/${el.images}`)
-                                      : prodPlaceholder
-                                  }
-                                  alt="prod img"
-                                  className="w-16 h-16 aspect-square object-cover rounded"
-                                />
-
-                                <p className="text-base  ml-2 max-w-[150px]">
-                                  {el.name}
+                      data.map((el, idx) => (
+                        <tr key={idx}>
+                          <td className="p-3">
+                            <div className="flex items-center">
+                              <img
+                                src={
+                                  el.image
+                                    ? require(`../../../../images/${el.image}`)
+                                    : prodPlaceholder
+                                }
+                                alt="product img"
+                                className="w-16 h-16 aspect-square object-cover rounded"
+                              />
+                              <p className="text-base ml-2 max-w-[150px]">
+                                {el.name}
+                              </p>
+                            </div>
+                          </td>
+                          <td className="p-3">{`$${(el.price / 100).toFixed(
+                            2
+                          )}`}</td>
+                          <td className="p-3">
+                            <div className="text-center w-fit">
+                              {el.stock !== 0 ? (
+                                <p
+                                  className={`bg-${
+                                    el.stock >= 0 ? "green" : "red"
+                                  }-400 text-white text-sm px-1 rounded`}
+                                >
+                                  {el.stock >= 0
+                                    ? "Available"
+                                    : "Not Available"}
                                 </p>
-                              </div>
-                            </td>
-                            <td className="p-3">
-                              {`$${(el.price / 100).toFixed(2)}`}
-                            </td>
-                            <td className="p-3">
-                              <div className="text-center w-fit ">
-                                {el.stock !== 0 ? (
-                                  <p className="bg-green-400 text-white text-sm px-1 rounded">
-                                    Available
-                                  </p>
-                                ) : (
-                                  <p className="bg-red-400 text-white text-sm px-1 rounded">
-                                    Not Available
-                                  </p>
-                                )}
-                                <p className="">
-                                  {el.stock >= 0 ? el.stock : "always"}
-                                </p>
-                              </div>
-                            </td>
-                            <td className="p-3">{el.sold}</td>
-
-                            <td className="p-3">
-                              <Link
-                                to={`/seller/products/${el.product_id}`}
-                                className="text-blue-700 py-4"
-                              >{`View >`}</Link>
-                            </td>
-                          </tr>
-                        );
-                      })
+                              ) : (
+                                <p className="text-sm">always</p>
+                              )}
+                              <p className="">
+                                {el.stock >= 0 ? el.stock : "always"}
+                              </p>
+                            </div>
+                          </td>
+                          <td className="p-3">{el.sold}</td>
+                          <td className="p-3">
+                            <Link
+                              to={`/seller/products/${el.product_id}`}
+                              className="text-blue-700 py-4"
+                            >
+                              View
+                            </Link>
+                          </td>
+                        </tr>
+                      ))
                     ) : (
                       <tr>
                         <td colSpan={5} className="text-center p-3 text-lg">
-                          no products
+                          No products
                         </td>
                       </tr>
                     )}
