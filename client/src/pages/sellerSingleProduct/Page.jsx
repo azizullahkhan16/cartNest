@@ -23,6 +23,7 @@ const SellerSingleProduct = () => {
   const handleEditSubmit = async () => {
     if (
       editStockData.mode !== "ALWAYS AVAILABLE" &&
+      editStockData.mode !== "SET" &&
       editStockData.value === 0
     ) {
       return setErr("please provide a value");
@@ -66,8 +67,8 @@ const SellerSingleProduct = () => {
             </div>
 
             <div className="w-full mb-4 px-2 py-3 border rounded-xl shadow-md ">
-              <p>Added in: 22/11/2021</p>
-              <p className="text-lg font-medium">units sold: 12</p>
+              <p>Added in: {data.date}</p>
+              <p className="text-lg font-medium">units sold: {data.sold}</p>
               <p className="">pending units: 2</p>
               <p className="">processing units: 3</p>
               <p className="">shipping units: 2</p>
@@ -231,49 +232,14 @@ const SellerSingleProduct = () => {
               </div>
               {/* description */}
               <p className="mt-4">{data.description}</p>
-              {/* specifications */}
-              <p className="mt-4">
-                <h2 className="text-xl">Specifications:</h2>
-                <ul className="list-disc list-inside">
-                  {data.specifications?.map((el, idx) => {
-                    return <li key={idx}>{el}</li>;
-                  })}
-                </ul>
-              </p>
-              {/* Customization */}
-              <div className="mt-4">
-                <h2 className="text-xl">Customizations:</h2>
-                {data.customizations?.map((el, idx) => {
-                  return (
-                    <div key={idx} className="mb-2">
-                      <p className="text-lg font-medium">{el.name}:</p>
-                      <div className="flex flex-wrap gap-10 items-center justify-s max-w-lg w-full ">
-                        {el.options.map((option, optidx) => (
-                          <p key={optidx}>{option}</p>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
               <h2 className="mt-4 mb-2 text-xl">images:</h2>
-              {data.images ? (
+              {data.image ? (
                 <div className="flex flex-wrap space-x-3">
                   <img
-                    src={require(`../../../../images/${data.images}`)}
+                    src={require(`../../../../images/${data.image}`)}
                     alt="prod image"
                     className="w-24 h-24 rounded object-cover border"
                   />
-                  {/*data.images.map((el, idx) => {
-                    return (
-                      <img
-                        src={`http://127.0.0.1:5000/${el}`}
-                        alt="prod image"
-                        key={idx}
-                        className="w-24 h-24 rounded object-cover border"
-                      />
-                    );
-                  })*/}
                 </div>
               ) : (
                 <p>no images</p>

@@ -94,10 +94,12 @@ const SellerProducts = () => {
                               {el.stock !== 0 ? (
                                 <p
                                   className={`bg-${
-                                    el.stock >= 0 ? "green" : "red"
+                                    el.stock > 0 || el.stock === -1
+                                      ? "green"
+                                      : "red"
                                   }-400 text-white text-sm px-1 rounded`}
                                 >
-                                  {el.stock >= 0
+                                  {el.stock > 0 || el.stock === -1
                                     ? "Available"
                                     : "Not Available"}
                                 </p>

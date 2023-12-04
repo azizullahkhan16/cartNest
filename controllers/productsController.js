@@ -200,13 +200,27 @@ export const editStockController = async (req, res) => {
       [id]
     );
 
-    const product = result.rows[0];
-    if (product[1] !== email) {
+    const rawProduct = result.rows[0];
+    console.log(rawProduct);
+    const product = {
+      _id: rawProduct[0],
+      name: rawProduct[1],
+      price: rawProduct[2],
+      stock: rawProduct[3],
+      sold: rawProduct[4],
+      rating: rawProduct[5],
+      description: rawProduct[6],
+      image: rawProduct[7],
+      owner: rawProduct[9],
+      category: rawProduct[10],
+      date: rawProduct[11],
+    };
+    if (product.owner !== email) {
       res.status(403).send("Unauthorized");
       return;
     }
 
-    if (value < 0 || (mode === "REMOVE" && value > product[4])) {
+    if (value < 0 || (mode === "REMOVE" && value > product.stock)) {
       return res.status(400).json({ msg: "Value error" });
     }
 
@@ -319,21 +333,21 @@ export const getSellerSingleProductController = async (req, res) => {
     }
 
     const rawProduct = result.rows[0];
+    console.log(rawProduct);
     const product = {
       _id: rawProduct[0],
-      owner: rawProduct[1],
-      name: rawProduct[2],
-      price: rawProduct[3],
-      stock: rawProduct[4],
-      sold: rawProduct[5],
-      rating: rawProduct[6],
-      description: rawProduct[7],
-      specifications: rawProduct[8],
-      categories: rawProduct[9],
-      customizations: rawProduct[10],
-      images: rawProduct[11],
-      deal_newprice: rawProduct[12],
+      name: rawProduct[1],
+      price: rawProduct[2],
+      stock: rawProduct[3],
+      sold: rawProduct[4],
+      rating: rawProduct[5],
+      description: rawProduct[6],
+      image: rawProduct[7],
+      owner: rawProduct[9],
+      category: rawProduct[10],
+      date: rawProduct[11],
     };
+    console.log(product);
     if (product.owner !== email) {
       return res.status(400).json({ success: false, msg: "Invalid owner." });
     } else {
