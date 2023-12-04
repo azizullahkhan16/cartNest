@@ -109,9 +109,20 @@ export const handleSellerSignUpController = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         // Insert a new user into the buyer table
         const result = await connection.execute(
-          `INSERT INTO seller (first_name, last_name, email, password, phone, address)
-             VALUES (:firstName, :lastName, :email, :hashedPassword, :phone, :address)`,
-          [firstName, lastName, email, hashedPassword, phone, address],
+          `BEGIN 
+            create_seller_and_store(:firstName, :lastName, :email, :hashedPassword, :phone, :address, :store, :storedesp, :storeType);
+          END;`,
+          [
+            firstName,
+            lastName,
+            email,
+            hashedPassword,
+            phone,
+            address,
+            store,
+            storeDesp,
+            storeType,
+          ],
           { autoCommit: true } // Auto-commit the transaction
         );
         if (result) {

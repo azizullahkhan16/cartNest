@@ -5,6 +5,7 @@ import useGetAxios from "../../hooks/useGetAxios";
 import usePrivateAxios from "../../hooks/usePrivateAxios";
 import prodPlaceholder from "../../assets/images/profilePlaceholder.png";
 import useAuth from "../../hooks/useAuth";
+
 const Profile = () => {
   //store original info in an object
   // onchange compare the current input with the original data if it doesnt match then show Update Button
@@ -133,7 +134,11 @@ const Profile = () => {
                     onChange={handleSetImage}
                   />
                   <img
-                    src={require(`../../../../images/${data.image}`)}
+                    src={
+                      data?.image
+                        ? require(`../../../../images/${data?.image}`)
+                        : { prodPlaceholder }
+                    }
                     alt=""
                     className="aspect-square w-40 h-40 rounded-full object-cover"
                   />

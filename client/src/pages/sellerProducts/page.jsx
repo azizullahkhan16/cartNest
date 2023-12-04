@@ -120,7 +120,7 @@ const SellerProducts = () => {
                     ) : (
                       <tr>
                         <td colSpan={5} className="text-center p-3 text-lg">
-                          no porducts
+                          no products
                         </td>
                       </tr>
                     )}
