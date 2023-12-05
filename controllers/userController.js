@@ -8,29 +8,18 @@ export const getProfileController = async (req, res) => {
     connection = await connectDB();
     const userEmail = getJwtEmail(req);
     const result = await connection.execute(
-      `SELECT
-     first_name,
-     last_name,
-     phone,
-     address,
-     image,
-     COUNT(c.cart_id) AS cart_count,
-     COUNT(w.wishlist_id) AS wishlist_count,
+      `SELECT first_name, last_name, phone, address, image,
+     COUNT(c.cart_id) AS cart_count, COUNT(w.wishlist_id) AS wishlist_count,
      COUNT(o.order_id) AS order_count
      FROM
      (((Buyer b
-     LEFT JOIN cart c ON c.useremail = email)
-     LEFT JOIN wishlist w ON w.useremail = email)
+     LEFT JOIN (SELECT * FROM cart WHERE is_deleted = 0) c ON c.useremail = email)
+     LEFT JOIN (SELECT * FROM wishlist WHERE is_deleted = 0) w ON w.useremail = email)
      LEFT JOIN orders o ON o.buyer_id = b.buyer_id)
    WHERE
      email = :userEmail
    GROUP BY
-     first_name,
-     last_name,
-     phone,
-     address,
-     image
-   `,
+     first_name, last_name, phone, address, image `,
       [userEmail]
     );
 

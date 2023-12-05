@@ -7,10 +7,9 @@ export const getCartController = async (req, res) => {
   try {
     connection = await connectDB();
     const cartResult = await connection.execute(
-      `
-    SELECT * 
+      `SELECT * 
     FROM cart
-    WHERE userEmail = :email`,
+    WHERE userEmail = :email AND is_deleted = 0`,
       [email]
     );
 
@@ -27,7 +26,7 @@ export const getCartController = async (req, res) => {
     let productId;
     if (cartResult.rows.length != 0) {
       for (let i = 0; i < cartResult.rows.length; i++) {
-        productId = cartResult.rows[i][3];
+        productId = cartResult.rows[i][2];
 
         const productResult = await connection.execute(
           `SELECT *
@@ -80,7 +79,7 @@ export const addCartController = async (req, res) => {
     const result = await connection.execute(
       `SELECT *
       FROM CART
-      WHERE product_id = :id`,
+      WHERE product_id = :id and is_deleted = 0`,
       [id]
     );
 
@@ -94,8 +93,8 @@ export const addCartController = async (req, res) => {
       );
     } else {
       await connection.execute(
-        `INSERT INTO cart(userEmail, count, product_id)
-      VALUES (:email, 1, :id)`,
+        `INSERT INTO cart(useremail, count, product_id, is_deleted)
+      VALUES (:email, 1, :id, 0)`,
         [email, id],
         { autoCommit: true } // Auto-commit the transaction
       );
@@ -126,13 +125,12 @@ export const removeCartController = async (req, res) => {
   try {
     connection = await connectDB();
     await connection.execute(
-      `DELETE FROM cart
+      `UPDATE cart
+      SET is_deleted = 1
       WHERE product_id = :id and userEmail = :email`,
       [id, email],
       { autoCommit: true } // Auto-commit the transaction
     );
-    //await connection.commit();
-
     if (refresh) {
       return getCartController(req, res);
     }
@@ -162,7 +160,8 @@ export const clearCartController = async (req, res) => {
     connection = await connectDB();
 
     await connection.execute(
-      `DELETE FROM cart
+      `UPDATE cart
+      SET is_deleted = 1
       WHERE userEmail = :email`,
       [email],
       { autoCommit: true }
@@ -170,7 +169,40 @@ export const clearCartController = async (req, res) => {
 
     res.json({ success: true, msg: "Clear cart successfully" });
   } catch (error) {
-    console.error("Error in removeCartController:", error);
+    console.error("Error in clearing the cart:", error);
+    res.status(500).json({ msg: "Server error" });
+  } finally {
+    try {
+      if (connection) {
+        await connection.close();
+      }
+    } catch (error) {
+      console.error("Error closing connection:", error);
+    }
+  }
+};
+
+export const updateItemCountController = async (req, res) => {
+  let connection;
+  const email = getJwtEmail(req);
+  const { id, count, refresh } = req.body;
+  try {
+    connection = await connectDB();
+
+    await connection.execute(
+      `UPDATE cart
+      SET count = :count
+      WHERE useremail = :email AND product_id = :id`,
+      [count, email, id],
+      { autoCommit: true }
+    );
+
+    if (refresh) {
+      return getCartController(req, res);
+    }
+    res.json({ success: true, msg: "Updated quantity successfully" });
+  } catch (error) {
+    console.error("Error in updating the count:", error);
     res.status(500).json({ msg: "Server error" });
   } finally {
     try {

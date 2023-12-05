@@ -129,8 +129,8 @@ const Cart = () => {
                 <div key={el.product_id}>
                   <CartItem
                     el={el}
-                    customizations={el.customizations}
                     setData={setData}
+                    count={data.cart[idx].count}
                   />
                 </div>
               );

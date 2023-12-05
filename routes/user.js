@@ -15,6 +15,7 @@ import {
   clearCartController,
   getCartController,
   removeCartController,
+  updateItemCountController,
 } from "../controllers/cartController.js";
 import {
   addToWishlistController,
@@ -35,6 +36,7 @@ userRouter.get("/cart", getCartController);
 userRouter.post("/addtocart", addCartController);
 userRouter.post("/removefromcart", removeCartController);
 userRouter.post("/clearcart", clearCartController);
+userRouter.post("/updatecount", updateItemCountController);
 userRouter.get("/wishlist", getWishlistController);
 userRouter.post("/addtowishlist", addToWishlistController);
 userRouter.post("/removefromwishlist", removeFromWishlistController);

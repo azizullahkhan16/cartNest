@@ -26,7 +26,6 @@ const ProductPage = () => {
   const [img, setImg] = useState(0);
   const [alert, setAlert] = useState("");
   const { data, loading, error } = useGetAxios(`/products/${id}`, axios, []);
-  const [customizations, setCustomizations] = useState({});
   const [cartButtonLoading, setCartButtonLoading] = useState(false);
   const [wishlistButtonLoading, setWishlistButtonLoading] = useState(false);
   console.log(data);
@@ -46,20 +45,11 @@ const ProductPage = () => {
       Navigate("/login", { state: { from: Location } });
       return;
     }
-    //alert if user want to add to cart and user forgot to specify a customization
-    if (!inCart) {
-      for (const key in customizations) {
-        if (customizations[key] === null) {
-          setAlert("please provide all customizations");
-          return;
-        }
-      }
-    }
 
     try {
       setAlert("");
       setCartButtonLoading(true);
-      const item = { id: data?.product_id, customizations };
+      const item = { id: data?.product_id };
       console.log(item);
       const newCart = [...auth.userData.cart];
       //change the behaviour of the function to (add to cart ) or (remove from cart) according to state
@@ -135,16 +125,6 @@ const ProductPage = () => {
     setWishlistButtonLoading(false);
   };
 
-  useEffect(() => {
-    if (data?.customizations) {
-      const custChoice = data.customizations.reduce((previous, el) => {
-        return { ...previous, [el.name]: null };
-      }, {});
-      setCustomizations(custChoice);
-      // console.log("customizations : " + JSON.stringify(customizations));
-    }
-  }, [data]);
-
   return (
     <>
       {error && <p className="text-lg text-center text-red-500">{error}</p>}
@@ -158,7 +138,11 @@ const ProductPage = () => {
             <div className="flex justify-center items-center w-full md:w-1/3  shrink-0 shadow ]  ">
               <div className="p-4 w-full max-w-md">
                 <img
-                  src={require(`../../../../images/${data.image}`)}
+                  src={
+                    data.image
+                      ? require(`../../../../images/${data.image}`)
+                      : prodPlaceholder
+                  }
                   alt=""
                   className="aspect-square w-full object-cover"
                 />
@@ -208,42 +192,6 @@ const ProductPage = () => {
                   );
                 })}
               </div>
-
-              {/* Customization */}
-              {data.customizations?.map((el, idx) => {
-                return (
-                  <div className="my-5" key={idx}>
-                    <p className="text-lg font-semibold mb-2">{el.name}</p>
-                    <div className="flex flex-wrap gap-10 items-center justify-s max-w-lg w-full ">
-                      {el.options?.map((opt, idx) => {
-                        return (
-                          <div key={idx}>
-                            <label
-                              htmlFor={`cusinput${opt}`}
-                              className="cursor-pointer"
-                            >
-                              {opt}{" "}
-                            </label>
-                            <input
-                              type="radio"
-                              name={el.name}
-                              id={`cusinput${opt}`}
-                              checked={customizations[el.name] === opt}
-                              onChange={(e) => {
-                                setCustomizations({
-                                  ...customizations,
-                                  [el.name]: opt,
-                                });
-                              }}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
-
               {alert && <p className="text-red-500 mb-2">{alert}</p>}
               {/* Buttons */}
               <div className="min-w-min flex flex-wrap justify-start gap-2">
