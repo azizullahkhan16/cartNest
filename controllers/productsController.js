@@ -27,12 +27,12 @@ export const getProductsController = async (req, res) => {
           `SELECT *
           FROM (
             SELECT
-              product_id, name, price, rating, images,
+              product_id, name, price, rating, image,
               ROWNUM AS rnum
             FROM
               product_category
             WHERE
-              categories = :category
+              category = :category
               AND ROWNUM <= :limit + :offset
           )
           WHERE rnum > :offset`,
@@ -61,7 +61,7 @@ export const getProductsController = async (req, res) => {
         `SELECT *
       FROM (
         SELECT
-          product_id, name, price, rating, images,
+          product_id, name, price, rating, image,
           ROWNUM AS rnum
         FROM
           product_category

@@ -119,11 +119,11 @@ const Profile = () => {
         ) : (
           data && (
             <>
-              <div className="p-6 border-b flex flex-col sm:flex-row items-center sm:items-end gap-0 sm:gap-6">
+              <div className="p-6 border-b flex flex-col items-center sm:flex-row gap-0 sm:gap-6">
                 <div className="relative flex flex-col items-center">
                   <label
                     htmlFor="img"
-                    className="text-primary hover:text-blue-400  absolute top-2 right-2 cursor-pointer outline-none"
+                    className="text-primary hover:text-blue-400 absolute top-2 right-2 cursor-pointer outline-none"
                   >
                     <FiEdit />
                   </label>
@@ -145,7 +145,7 @@ const Profile = () => {
                     className="aspect-square w-40 h-40 rounded-full object-cover"
                   />
                 </div>
-                <div>
+                <div className="text-center">
                   {img && (
                     <div className="mt-1 mx-auto w-fit sm:w-auto">
                       <button
@@ -164,56 +164,33 @@ const Profile = () => {
                       </button>
                     </div>
                   )}
-                  <p className="text-2xl font-semibold my-2 sm:my-6 ">
-                    {" "}
-                    {`${data.first_name} ${data.last_name}`}{" "}
+                  <p className="text-2xl font-semibold my-2 sm:my-6">
+                    {`${data.first_name} ${data.last_name}`}
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-4 text-xl  font-nunito border-b">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 py-4 text-xl  font-nunito border-b">
                 <div className="w-36 h-36 rounded-full mx-auto md:mx-0 flex flex-col items-center justify-center bg-gradient-to-b from-green-300 to bg-green-500 ">
                   <div className="w-32 h-32  py-2 px-4 bg-white rounded-full flex flex-col items-center justify-center">
                     <p>cart</p>
-                    <p className="text-2xl text-primary">{data.cart?.length}</p>
+                    <p className="text-2xl text-primary">{data.cart_count}</p>
                   </div>
                 </div>
                 <div className="w-36 h-36 rounded-full mx-auto md:mx-0 flex flex-col items-center justify-center bg-gradient-to-b from-red-300 to bg-red-500 ">
                   <div className="w-32 h-32  py-2 px-4 bg-white rounded-full flex flex-col items-center justify-center">
                     <p>wishlist</p>
                     <p className="text-2xl text-primary">
-                      {data.wishlist?.length}
+                      {data.wishlist_count}
                     </p>
                   </div>
                 </div>
                 <div className="w-36 h-36 rounded-full mx-auto md:mx-0 flex flex-col items-center justify-center bg-gradient-to-b from-blue-300 to bg-blue-500 ">
                   <div className="w-32 h-32  py-2 px-4 bg-white rounded-full flex flex-col items-center justify-center">
                     <p>orders</p>
-                    <p className="text-2xl text-primary">{data.totalorders}</p>
+                    <p className="text-2xl text-primary">{data.order_count}</p>
                   </div>
                 </div>
-                <div className="w-36 h-36 rounded-full mx-auto md:mx-0 flex flex-col items-center justify-center bg-gradient-to-b from-zinc-300 to bg-zinc-500 ">
-                  <div className="w-32 h-32  py-2 px-4 bg-white rounded-full flex flex-col items-center justify-center">
-                    <p>cart</p>
-                    <p className="text-2xl text-primary">13</p>
-                  </div>
-                </div>
-                {/* <div className='w-36 h-36 py-2 px-4 rounded-full mx-auto md:mx-0 flex flex-col items-center justify-center bg-slate-100 '>
-            <p>cart</p>
-            <p className='text-2xl text-primary'>13</p>
-          </div>
-          <div className='w-36 h-36 py-2 px-4 rounded-full mx-auto md:mx-0 flex flex-col items-center justify-center bg-slate-100 '>
-            <p>wishlist</p>
-            <p className='text-2xl text-primary'>18</p>
-          </div>
-          <div className='w-36 h-36 py-2 px-4 rounded-full mx-auto md:mx-0 flex flex-col items-center justify-center bg-slate-100 '>
-            <p>orders</p>
-            <p className='text-2xl text-primary'>3</p>
-          </div>
-          <div className='w-36 h-36 py-2 px-4 rounded-full mx-auto md:mx-0 flex flex-col items-center justify-center bg-slate-100 '>
-          <p>completed orders</p>
-            <p className='text-2xl text-primary'>23</p>
-          </div> */}
               </div>
 
               <div className="mt-4 max-w-3xl text-zinc-700">

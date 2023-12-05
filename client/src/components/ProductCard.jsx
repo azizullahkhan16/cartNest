@@ -52,7 +52,7 @@ const ProductCard = ({ data }) => {
       <div className="border  max-w-xs md:max-w-sm mx-auto w-full font-nunito flex flex-col rounded-lg shadow-lg p-2 md:p-4 gap-2 scale-100  hover:scale-105 transition-transform duration-300 cursor-pointer">
         <div className="w-full aspect-square rounded-lg overflow-clip">
           <img
-            src={require(`../../../images/${data.images}`)}
+            src={require(`../../../images/${data.image}`)}
             alt="product img"
             className="h-full object-cover"
             loading="lazy"

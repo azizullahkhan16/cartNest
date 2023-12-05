@@ -158,20 +158,10 @@ const ProductPage = () => {
             <div className="flex justify-center items-center w-full md:w-1/3  shrink-0 shadow ]  ">
               <div className="p-4 w-full max-w-md">
                 <img
-                  src={require(`../../../../images/${data.images}`)}
+                  src={require(`../../../../images/${data.image}`)}
                   alt=""
                   className="aspect-square w-full object-cover"
                 />
-                {/*<div className='flex flex-wrap  justify-center items-center mt-4 mx-auto [&>*:last-child]:mr-auto [&>*:nth-child(1)]:ml-auto '>
-                      {data.images.map((el, idx) => {
-                        return (
-                          <div className={`w-1/4 px-2 cursor-pointer`} onClick={() => { setImg(idx) }} key={idx} >
-                            <img src={serverUrl + '/' + el} alt="" className={`aspect-square object-cover ${img === idx ? 'outline-2 outline-blue-400 outline' : ''} `} />
-                          </div>
-                        )
-                      }
-                      )}
-                    </div>*/}
               </div>
             </div>
 

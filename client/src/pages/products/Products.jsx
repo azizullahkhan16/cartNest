@@ -57,38 +57,6 @@ const Products = () => {
             <SearchBar />
           </div>
 
-          {/* categories filter */}
-          {/* <div className="inline-block md:absolute md:top-4 left-4 z-10">
-          <div className="relative">
-
-            <div className="h-12 select-none w-fit px-3 flex justify-center items-center space-x-2 py-1 shadow-md rounded-full text-lg text-zinc-800 cursor-pointer " onClick={() => { setCategoryOpen(!categoryOpen) }}>
-              <p >Categories</p>
-              <div className={`rounded-full ${filter.All ? 'hidden' : ''} bg-primary text-base px-2 text-white`}>
-                {Object.keys(filter).reduce((r, v) => { return filter[v] ? r + 1 : r }, 0)}
-              </div>
-              <BsChevronDown />
-            </div>
-
-            <div className={`absolute top-12 ${categoryOpen ? 'block' : 'hidden'} z-10 py-3 px-2`}>
-              <div className="rounded-md  border shadow-md p-3 flex flex-col gap-2 bg-white text-lg">
-                {filter && Object.keys(filter).map((el, idx) => {
-                  return (
-                    <label htmlFor={el}>
-                      <div className="flex justify-between  space-x-3 hover:bg-zinc-100 px-2 cursor-pointer" key={el}>
-                        <p className={`whitespace-nowrap select-none`}>{el}</p>
-                        <input type="checkbox" name={el} id={el} disabled={el !== "All" ? filter.All : false}
-                          checked={filter[el]} onChange={(e) => { setFilter((oldval) => { return { ...oldval, [el]: e.target.checked } }) }}
-                          className='scale-125 cursor-pointer'
-                        />
-                      </div>
-                    </label>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
-        </div> */}
-
           {/* gpt */}
 
           <div className="relative inline-block md:absolute md:top-4 md:left-4 z-10">
@@ -164,7 +132,7 @@ const Products = () => {
           })}
         </main>
       ) : (
-        <p className="text-lg text-red-500"> no products available </p>
+        <p className="text-lg text-red-500"> No products available </p>
       )}
     </>
   );
