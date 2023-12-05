@@ -7,19 +7,14 @@ import prodPlaceholder from "../../assets/images/profilePlaceholder.png";
 import useAuth from "../../hooks/useAuth";
 
 const Profile = () => {
-  //store original info in an object
-  // onchange compare the current input with the original data if it doesnt match then show Update Button
-  // on update validate the fields data
-
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
-  const [address1, setAddress1] = useState("");
-  const [address2, setAddress2] = useState("");
+  const [address, setAddress] = useState("");
   const [changed, setChanged] = useState(false);
   const [img, setImg] = useState(null);
   const { setAuth } = useAuth();
-  const serverUrl = process.env.REACT_APP_URL;
+  const [err, setErr] = useState("");
   const privateAxios = usePrivateAxios();
   const { data, loading, error } = useGetAxios(
     "/user/profile",
@@ -32,8 +27,7 @@ const Profile = () => {
       setFirstName(data.first_name);
       setLastName(data.last_name);
       setPhone(data.phone);
-      setAddress1(data.address);
-      setAddress2(data.address2);
+      setAddress(data.address);
     }
   }, [data]);
 
@@ -43,8 +37,7 @@ const Profile = () => {
         data.first_name !== firstName ||
         data.last_name !== lastName ||
         data.phone !== phone ||
-        data.address !== address1 ||
-        data.address2 !== address2
+        data.address !== address
       ) {
         setChanged(true);
         console.log("data.phone " + data.phone);
@@ -52,7 +45,7 @@ const Profile = () => {
         setChanged(false);
       }
     }
-  }, [firstName, lastName, phone, address1, address2]);
+  }, [firstName, lastName, phone, address]);
 
   const handleSetImage = (e) => {
     if (e.target.files[0]) {
@@ -68,9 +61,12 @@ const Profile = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
       if (res) {
-        setAuth((p) => {
-          return { ...p, userData: { ...p.userData, img: res.data.img } };
-        });
+        setTimeout(() => {
+          setAuth((p) => {
+            return { ...p, userData: { ...p.userData, image: res.data.img } };
+          });
+        }, 1000);
+
         data.profilePicture = res.data.img;
         setImg(null);
       }
@@ -85,24 +81,30 @@ const Profile = () => {
   };
 
   const handleUpdataInfo = async () => {
-    const data = {
-      firstName,
-      lastName,
-      phone,
-      address1,
-      address2,
-    };
-    try {
-      await privateAxios.post("/user/updateinfo", data);
-      const addresses = [];
-      if (address1) addresses.push(address1);
-      if (address2) addresses.push(address2);
-
-      setAuth((p) => {
-        return { ...p, userData: { ...p.userData, addresses } };
-      });
-      setChanged(false);
-    } catch (error) {}
+    if (firstName && lastName && phone && address) {
+      const data = {
+        firstName,
+        lastName,
+        phone,
+        address,
+      };
+      try {
+        await privateAxios.post("/user/updateinfo", data);
+        setAuth((p) => {
+          return { ...p, userData: { ...p.userData, address } };
+        });
+        setChanged(false);
+        setErr("");
+      } catch (error) {
+        if (error.response) {
+          setErr("something went wrong");
+        } else if (error.request) {
+          setErr("no server response");
+        }
+      }
+    } else {
+      return setErr("please provide a value");
+    }
   };
 
   return (
@@ -215,7 +217,7 @@ const Profile = () => {
               </div>
 
               <div className="mt-4 max-w-3xl text-zinc-700">
-                <p className="text-lg w-fit">Personal info:</p>
+                <p className="text-lg w-fit">Personal Information</p>
                 <div className="flex gap-4 flex-wrap mt-4">
                   <div className="grow min-w-[250px] ">
                     <label htmlFor="first name" className="block">
@@ -264,34 +266,21 @@ const Profile = () => {
                   </div>
                   <div className="w-full min-w-[250px]">
                     <label htmlFor="adress" className="block">
-                      Address1:
+                      Address:
                     </label>
                     <input
                       type="text"
                       id="adress"
                       className="outline-none numberinput none border w-full rounded-lg bg-slate-100 p-2"
-                      value={address1}
+                      value={address}
                       onChange={(e) => {
-                        setAddress1(e.target.value);
-                      }}
-                    />
-                  </div>
-                  <div className="w-full min-w-[250px]">
-                    <label htmlFor="adress" className="block">
-                      Address2:
-                    </label>
-                    <input
-                      type="text"
-                      id="adress"
-                      className="outline-none numberinput none border w-full rounded-lg bg-slate-100 p-2"
-                      value={address2}
-                      onChange={(e) => {
-                        setAddress2(e.target.value);
+                        setAddress(e.target.value);
                       }}
                     />
                   </div>
                 </div>
                 <div className="w-full max-w-3xl ">
+                  <p className="text-red-500 ">{err}</p>
                   <button
                     className={`mt-4 mx-auto block rounded-md px-4 py-1  border font-semibold border-primary text-primary ${
                       changed ? "" : "hidden"

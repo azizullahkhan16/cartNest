@@ -41,7 +41,7 @@ export const getProfileController = async (req, res) => {
 export const getUpdateProfileController = async (req, res) => {
   let connection;
   try {
-    const { firstName, lastName, phone, address1, address2 } = req.body;
+    const { firstName, lastName, phone, address } = req.body;
     const userEmail = getJwtEmail(req);
     connection = await connectDB();
 
@@ -79,9 +79,9 @@ export const getUpdateProfileController = async (req, res) => {
       await connection.commit(); // Add this line
     }
 
-    console.log(result.rows[0][6] + address1);
-    if (address1 && result.rows[0][6] !== address1) {
-      await connection.execute(query("address", address1), [userEmail]);
+    console.log(result.rows[0][6] + address);
+    if (address && result.rows[0][6] !== address) {
+      await connection.execute(query("address", address), [userEmail]);
       await connection.commit(); // Add this line
     }
 
