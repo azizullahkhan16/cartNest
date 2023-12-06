@@ -36,7 +36,10 @@ const Cart = () => {
   useEffect(() => {
     if (data?.products?.length >= 0) {
       const taxRate = 8;
-      const subtotal = data.products.reduce((p, el) => p + el.price, 0);
+      let subtotal = 0;
+      for (let i = 0; i < data.products.length; i++) {
+        subtotal = subtotal + data.products[i].price * data.cart[i].count;
+      }
       console.log("subtotal : " + subtotal);
       const tax = (subtotal * taxRate) / 100;
       const estShCost = 6000;
@@ -48,17 +51,6 @@ const Cart = () => {
         tax: `$ ${(tax / 100).toFixed(2)}`,
         total: `$ ${((subtotal + tax + estShCost) / 100).toFixed(2)}`,
       };
-      console.log(
-        subtotal +
-          " tax : " +
-          tax +
-          " estsh: " +
-          estShCost +
-          " tot: " +
-          subtotal +
-          tax +
-          estShCost
-      );
       setCartInfo(cartdata);
     } else {
       const cartdata = {
