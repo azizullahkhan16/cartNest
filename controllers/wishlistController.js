@@ -10,7 +10,7 @@ export const getWishlistController = async (req, res) => {
     const wishlistResult = await connection.execute(
       `SELECT *
       FROM wishlist
-      WHERE userEmail = :email`,
+      WHERE userEmail = :email AND is_deleted = 0`,
       [email]
     );
 
@@ -18,7 +18,7 @@ export const getWishlistController = async (req, res) => {
     if (wishlistResult.rows.length != 0) {
       let productId;
       for (let i = 0; i < wishlistResult.rows.length; i++) {
-        productId = wishlistResult.rows[i][3];
+        productId = wishlistResult.rows[i][2];
 
         const productResult = await connection.execute(
           `SELECT *
@@ -62,28 +62,22 @@ export const addToWishlistController = async (req, res) => {
     const result = await connection.execute(
       `SELECT *
       FROM wishlist
-      WHERE product_id = :id`,
+      WHERE product_id = :id and is_deleted = 0`,
       [id]
     );
 
     if (result?.rows.length !== 0) {
-      await connection.execute(
-        `UPDATE wishlist
-        SET count = count + 1
-        WHERE product_id = :id`,
-        [id],
-        { autoCommit: true } // Auto-commit the transaction
-      );
+      res.json({ success: true, msg: "Product already in wishlist." });
+      return;
     } else {
       await connection.execute(
-        `INSERT INTO wishlist(userEmail, count, product_id)
-      VALUES (:email, 1, :id)`,
+        `INSERT INTO wishlist(useremail, product_id)
+      VALUES (:email, :id)`,
         [email, id],
         { autoCommit: true } // Auto-commit the transaction
       );
     }
     res.json({ success: true, msg: "Product added to wishlist successfully" });
-    return;
   } catch (error) {
     res.status(500).json({ msg: "server error" });
     console.log(error);
@@ -105,12 +99,12 @@ export const removeFromWishlistController = async (req, res) => {
   try {
     connection = await connectDB();
     await connection.execute(
-      `DELETE FROM wishlist
+      `UPDATE wishlist
+      SET is_deleted = 1
       WHERE product_id = :id and userEmail = :email`,
       [id, email],
       { autoCommit: true } // Auto-commit the transaction
     );
-    //await connection.commit();
     res.json({
       success: "true",
       msg: "Product removed from wishlist successfully",

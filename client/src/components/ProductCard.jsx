@@ -9,7 +9,10 @@ const serverUrl = process.env.REACT_APP_URL;
 const ProductCard = ({ data }) => {
   const { auth, setAuth } = useAuth();
   const inWishlist = useMemo(
-    () => auth?.userData?.wishlist?.includes(data?.product_id),
+    () =>
+      auth?.userData?.wishlist
+        ?.map((el) => el.product_id)
+        .includes(data?.product_id),
     [auth, data]
   );
   const Location = useLocation();

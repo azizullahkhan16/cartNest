@@ -27,37 +27,48 @@ export const handleLoginController = async (req, res) => {
             `,
         [email]
       );
+
+      console.log(user.rows[0]);
       const cart = await connection.execute(
         `SELECT *
         FROM cart
-        WHERE cart.userEmail = :email
+        WHERE useremail = :email and is_deleted = 0
             `,
         [email]
       );
+      console.log(cart.rows.length);
       const wishList = await connection.execute(
         `SELECT *
         FROM wishlist
-        WHERE wishlist.userEmail = :email
+        WHERE useremail = :email and is_deleted = 0
             `,
         [email]
       );
 
-      const userCart = {};
+      let userCart;
       if (cart?.rows.length != 0) {
-        for (let i = 0; i < cart.metaData.length; i++) {
-          userCart[cart.metaData[i].name.toLowerCase()] = cart.rows[0][i];
-        }
+        // Convert ResultSet to an array of objects
+        userCart = cart.rows.map((row) => {
+          const singleCart = {};
+          for (let i = 0; i < cart.metaData.length; i++) {
+            singleCart[cart.metaData[i].name.toLowerCase()] = row[i];
+          }
+          return singleCart;
+        });
+      }
+      console.log(userCart);
+      let userWish;
+      if (wishList?.rows.length != 0) {
+        // Convert ResultSet to an array of objects
+        userWish = wishList.rows.map((row) => {
+          const wish = {};
+          for (let i = 0; i < wishList.metaData.length; i++) {
+            wish[wishList.metaData[i].name.toLowerCase()] = row[i];
+          }
+          return wish;
+        });
       }
 
-      const userWish = {};
-      if (wishList?.rows.length) {
-        for (let i = 0; i < wishList.metaData.length; i++) {
-          userWish[wishList.metaData[i].name.toLowerCase()] =
-            wishList.rows[0][i];
-        }
-      }
-      console.log(user.rows[0]);
-      console.log(userCart);
       console.log(userWish);
 
       if (user) {
@@ -73,8 +84,8 @@ export const handleLoginController = async (req, res) => {
             phone: user.rows[0][5],
             address: user.rows[0][6],
             image: user.rows[0][7],
-            cart: cart.rows,
-            wishlist: wishList.rows,
+            cart: userCart,
+            wishlist: userWish,
           };
           res.status(200).json({ token: JWT, role: "user", userData });
         } else {
