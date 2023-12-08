@@ -30,7 +30,7 @@ export const handleLoginController = async (req, res) => {
 
       console.log(user.rows[0]);
       const cart = await connection.execute(
-        `SELECT *
+        `SELECT product_id
         FROM cart
         WHERE useremail = :email and is_deleted = 0
             `,
@@ -38,34 +38,26 @@ export const handleLoginController = async (req, res) => {
       );
       console.log(cart.rows.length);
       const wishList = await connection.execute(
-        `SELECT *
+        `SELECT product_id
         FROM wishlist
         WHERE useremail = :email and is_deleted = 0
             `,
         [email]
       );
 
-      let userCart;
+      let userCart = [];
       if (cart?.rows.length != 0) {
         // Convert ResultSet to an array of objects
         userCart = cart.rows.map((row) => {
-          const singleCart = {};
-          for (let i = 0; i < cart.metaData.length; i++) {
-            singleCart[cart.metaData[i].name.toLowerCase()] = row[i];
-          }
-          return singleCart;
+          return row[0];
         });
       }
       console.log(userCart);
-      let userWish;
+      let userWish = [];
       if (wishList?.rows.length != 0) {
         // Convert ResultSet to an array of objects
         userWish = wishList.rows.map((row) => {
-          const wish = {};
-          for (let i = 0; i < wishList.metaData.length; i++) {
-            wish[wishList.metaData[i].name.toLowerCase()] = row[i];
-          }
-          return wish;
+          return row[0];
         });
       }
 

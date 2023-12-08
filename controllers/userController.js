@@ -15,7 +15,7 @@ export const getProfileController = async (req, res) => {
      (((Buyer b
      LEFT JOIN (SELECT * FROM cart WHERE is_deleted = 0) c ON c.useremail = email)
      LEFT JOIN (SELECT * FROM wishlist WHERE is_deleted = 0) w ON w.useremail = email)
-     LEFT JOIN orders o ON o.buyer_id = b.buyer_id)
+     LEFT JOIN orders o ON o.useremail = b.email)
    WHERE
      email = :userEmail
    GROUP BY

@@ -10,11 +10,11 @@ export const getOrderController = async (req, res) => {
       `SELECT *
       FROM (
           ((orders o
-          LEFT JOIN order_items oi ON oi.order_id = o.order_id)
+          LEFT JOIN order_item oi ON oi.order_id = o.order_id)
           LEFT JOIN product_category pc ON pc.product_id = oi.product_id)
-          LEFT JOIN seller s ON s.email = o.owner
+          LEFT JOIN seller s ON s.email = o.useremail
       )
-      WHERE o.owner = :email
+      WHERE o.useremail = :email
       ORDER BY o.order_date DESC`,
       [email]
     );
@@ -69,13 +69,13 @@ export const getSingleOrderController = async (req, res) => {
     const result = await connection.execute(
       `SELECT *
          FROM (((orders o
-          LEFT JOIN order_items oi
+          LEFT JOIN order_item oi
            ON o.order_id = oi.order_id)
          LEFT JOIN product_category pc
          ON pc.product_id = oi.product_id)
          LEFT JOIN seller s
-         ON s.email = o.owner)
-         WHERE o.owner = :email AND o.order_id = :id
+         ON s.email = o.useremail)
+         WHERE o.useremail = :email AND o.order_id = :id
         `,
       [email, id]
     );
@@ -137,7 +137,7 @@ export const placeOrderController = async (req, res) => {
       `
     SELECT * 
     FROM cart
-    WHERE userEmail = :email`,
+    WHERE useremail = :email AND is_deleted = 0`,
       [email]
     );
 
@@ -154,7 +154,7 @@ export const placeOrderController = async (req, res) => {
     let productId;
     if (cartResult.rows.length != 0) {
       for (let i = 0; i < cartResult.rows.length; i++) {
-        productId = cartResult.rows[i][3];
+        productId = cartResult.rows[i][2];
 
         const productResult = await connection.execute(
           `SELECT *
@@ -203,18 +203,9 @@ export const placeOrderController = async (req, res) => {
       const shippingCost = 6000;
       const totalCost = subtotal + tax + shippingCost;
       orderEntry = await connection.execute(
-        `INSERT INTO orders (owner, seller, order_date, shipping_address, total_cost, subtotal, shipping_cost, tax)
-        VALUES (:email, :seller, :currentDate, :address, :total, :subtotal, :shipping_cost, :tax)`,
-        [
-          email,
-          seller,
-          currentDate,
-          address,
-          totalCost,
-          subtotal,
-          shippingCost,
-          tax,
-        ],
+        `INSERT INTO orders (useremail, order_date, shipping_address, total_cost, subtotal, shipping_cost, tax)
+        VALUES (:email, :currentDate, :address, :total, :subtotal, :shipping_cost, :tax)`,
+        [email, currentDate, address, totalCost, subtotal, shippingCost, tax],
         { autoCommit: true }
       );
       const o = {
@@ -234,8 +225,8 @@ export const placeOrderController = async (req, res) => {
     const getOrder = await connection.execute(
       `SELECT order_id
       FROM orders
-      WHERE owner = :email`,
-      [email]
+      WHERE order_date = :currentDate`,
+      [currentDate]
     );
 
     const order_id = getOrder.rows[0][0];
@@ -245,18 +236,17 @@ export const placeOrderController = async (req, res) => {
       const count = carts[i].count;
       const unit_price = products[i].price;
       const total_price = unit_price * count;
+      const seller = finalOrders[i].seller;
       await connection.execute(
-        `INSERT INTO order_items (order_id, product_id, count, unit_price, total_price)
-          values (:order_id, :product_id, :count, :unit_price, :total_price)`,
-        [order_id, product_id, count, unit_price, total_price],
+        `INSERT INTO order_items (order_id, seller, product_id, quantity, unit_price, total_price)
+          values (:order_id, :seller, :product_id, :count, :unit_price, :total_price)`,
+        [order_id, seller, product_id, count, unit_price, total_price],
         { autoCommit: true }
       );
     }
 
     console.log("final orders: ");
     console.log(finalOrders);
-    console.log(orderEntry);
-    console.log(getOrder);
     res.json({ msg: "order added successfully" });
   } catch (error) {
     res.status(500).json({ msg: "server error" });

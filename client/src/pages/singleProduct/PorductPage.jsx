@@ -31,19 +31,14 @@ const ProductPage = () => {
   console.log(data);
 
   const inWishlist = useMemo(
-    () =>
-      auth?.userData?.wishlist
-        ?.map((el) => el.product_id)
-        .includes(data?.product_id),
+    () => auth?.userData?.wishlist?.includes(data?.product_id),
     [auth, data]
   );
   const inCart = useMemo(
-    () =>
-      auth?.userData?.cart
-        ?.map((el) => el.product_id)
-        .includes(data?.product_id),
+    () => auth?.userData?.cart?.map((el) => el.id).includes(data?.product_id),
     [auth, data]
   );
+  console.log(inCart);
 
   const handleAddToCart = async () => {
     //navigate to login page if not authenticated

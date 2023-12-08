@@ -9,10 +9,7 @@ const serverUrl = process.env.REACT_APP_URL;
 const ProductCard = ({ data }) => {
   const { auth, setAuth } = useAuth();
   const inWishlist = useMemo(
-    () =>
-      auth?.userData?.wishlist
-        ?.map((el) => el.product_id)
-        .includes(data?.product_id),
+    () => auth?.userData?.wishlist?.includes(data?.product_id),
     [auth, data]
   );
   const Location = useLocation();
@@ -27,7 +24,9 @@ const ProductCard = ({ data }) => {
       return;
     }
     try {
-      const newWishlist = [...auth.userData.wishlist];
+      // Initialize wishlist as an empty array if it's undefined
+      const newWishlist = [...(auth.userData.wishlist || [])];
+
       if (!inWishlist) {
         await privateAxios.post("/user/addtowishlist", {
           id: data?.product_id,
@@ -39,6 +38,7 @@ const ProductCard = ({ data }) => {
         });
         newWishlist.splice(newWishlist.indexOf(data?.product_id), 1);
       }
+
       const authWithEditedWishlist = {
         ...auth,
         userData: { ...auth.userData, wishlist: newWishlist },
@@ -49,7 +49,6 @@ const ProductCard = ({ data }) => {
       console.error(error);
     }
   };
-
   return (
     <Link to={"/products/" + data.product_id}>
       <div className="border  max-w-xs md:max-w-sm mx-auto w-full font-nunito flex flex-col rounded-lg shadow-lg p-2 md:p-4 gap-2 scale-100  hover:scale-105 transition-transform duration-300 cursor-pointer">

@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
 import SearchBar from "../../components/SearchBar";
+import useAuth from "../../hooks/useAuth";
 const Hero = () => {
+  const { auth, setAuth } = useAuth();
+
   return (
     <div className="relative">
       <img
@@ -22,12 +25,14 @@ const Hero = () => {
             </p>
           </div>
 
-          <Link
-            to={"/seller/login"}
-            className="py-3 px-4 bg-gray-200 hover:bg-orange-300 rounded-xl"
-          >
-            I'm a seller
-          </Link>
+          {auth?.role !== "user" && (
+            <Link
+              to={"/seller/login"}
+              className="py-3 px-4 bg-gray-200 hover:bg-orange-300 rounded-xl"
+            >
+              I'm a seller
+            </Link>
+          )}
         </div>
 
         <div className="flex justify-center items-center mt-10">
