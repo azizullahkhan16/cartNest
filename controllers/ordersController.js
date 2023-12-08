@@ -1,5 +1,65 @@
 import getJwtEmail from "../utils/getJwtEmail.js";
 import connectDB from "./../config/db.js";
+import oracledb from "oracledb";
+
+const transformToInformationB = (informationA, products) => {
+  const informationB = informationA.map((order) => {
+    const transformedOrder = {
+      _id: order.order_id, // Generate ObjectId or use the one from the order if available
+      owner: order.useremail,
+      seller: {
+        shopName: order.store_name, // Assuming store_name is the equivalent of shopName
+        email: order.email,
+      },
+      date: order.order_date,
+      status: order.status,
+      shippingAdress: order.shipping_address,
+      productsElements: products.map((product) => ({
+        name: product.name,
+        product_id: product.product_id,
+        quantity: product.quantity,
+        unit_price: product.unit_price,
+        total_price: product.total_price,
+      })),
+      totalCost: order.total_cost,
+      subtotal: order.subtotal,
+      shippingCost: order.shipping_cost,
+      tax: order.tax,
+    };
+
+    return transformedOrder;
+  });
+
+  return informationB;
+};
+
+const transformToInformationBPart2 = (order, products) => {
+  const transformedOrder = {
+    _id: order.order_id, // Generate ObjectId or use the one from the order if available
+    owner: order.useremail,
+    seller: {
+      shopName: order.store_name, // Assuming store_name is the equivalent of shopName
+      email: order.email,
+    },
+    date: order.order_date,
+    status: order.status,
+    shippingAddress: order.shipping_address,
+    productsElements: products.map((product) => ({
+      name: product.name,
+      product_id: product.product_id,
+      quantity: product.quantity,
+      unit_price: product.unit_price,
+      total_price: product.total_price,
+      image: product.image,
+    })),
+    totalCost: order.total_cost,
+    subtotal: order.subtotal,
+    shippingCost: order.shipping_cost,
+    tax: order.tax,
+  };
+
+  return transformedOrder;
+};
 
 export const getOrderController = async (req, res) => {
   let connection;
@@ -9,38 +69,52 @@ export const getOrderController = async (req, res) => {
     const result = await connection.execute(
       `SELECT *
       FROM (
-          ((orders o
-          LEFT JOIN order_item oi ON oi.order_id = o.order_id)
-          LEFT JOIN product_category pc ON pc.product_id = oi.product_id)
-          LEFT JOIN seller s ON s.email = o.useremail
-      )
+          (orders o
+          LEFT JOIN seller s ON s.email = o.useremail)
+          LEFT JOIN store st ON st.store_owner = s.seller_id
+          )
       WHERE o.useremail = :email
       ORDER BY o.order_date DESC`,
       [email]
     );
 
+    const productResult = await connection.execute(
+      `SELECT *
+      FROM (
+          (orders o
+          LEFT JOIN order_item oi ON oi.order_id = o.order_id)
+          LEFT JOIN product_category pc ON pc.product_id = oi.product_id)
+      WHERE o.useremail = :email`,
+      [email]
+    );
+
+    let products;
+    if (productResult.rows.length != 0) {
+      // Convert ResultSet to an array of objects
+      products = productResult.rows.map((row) => {
+        const product = {};
+        for (let i = 0; i < productResult.metaData.length; i++) {
+          product[productResult.metaData[i].name.toLowerCase()] = row[i];
+        }
+        return product;
+      });
+    }
+
+    let orders;
     if (result.rows.length != 0) {
-      const orders = {};
-      for (let i = 0; i < result.metaData.length; i++) {
-        orders[result.metaData[i].name.toLowerCase()] = result.rows[0][i];
-      }
-      delete orders.password;
-      console.log(orders.price);
-      res.json([
-        {
-          date: orders.order_date,
-          totalCost: orders.total_cost,
-          status: orders.status,
-          productsElements: [
-            {
-              name: orders.name,
-              price: orders.price,
-              images: orders.images,
-            },
-          ],
-          _id: orders.order_id,
-        },
-      ]);
+      // Convert ResultSet to an array of objects
+      orders = result.rows.map((row) => {
+        const order = {};
+        for (let i = 0; i < result.metaData.length; i++) {
+          order[result.metaData[i].name.toLowerCase()] = row[i];
+        }
+        return order;
+      });
+
+      const informationB = transformToInformationB(orders, products);
+
+      console.log(informationB);
+      res.json(informationB);
     } else {
       res.json({ msg: "No orders found" });
     }
@@ -60,59 +134,53 @@ export const getOrderController = async (req, res) => {
 
 export const getSingleOrderController = async (req, res) => {
   let connection;
-  const email = getJwtEmail(req);
   const { id } = req.params;
-  console.log(id + email);
+  const email = getJwtEmail(req);
   try {
     connection = await connectDB();
-
     const result = await connection.execute(
       `SELECT *
-         FROM (((orders o
-          LEFT JOIN order_item oi
-           ON o.order_id = oi.order_id)
-         LEFT JOIN product_category pc
-         ON pc.product_id = oi.product_id)
-         LEFT JOIN seller s
-         ON s.email = o.useremail)
-         WHERE o.useremail = :email AND o.order_id = :id
-        `,
+      FROM (
+          (orders o
+          LEFT JOIN seller s ON s.email = o.useremail)
+          LEFT JOIN store st ON st.store_owner = s.seller_id
+          )
+      WHERE o.useremail = :email AND o.order_id = :id
+      ORDER BY o.order_date DESC`,
       [email, id]
     );
+
+    const productResult = await connection.execute(
+      `SELECT *
+      FROM (
+          (orders o
+          LEFT JOIN order_item oi ON oi.order_id = o.order_id)
+          LEFT JOIN product_category pc ON pc.product_id = oi.product_id)
+      WHERE o.useremail = :email`,
+      [email]
+    );
+
+    let products;
+    if (productResult.rows.length != 0) {
+      // Convert ResultSet to an array of objects
+      products = productResult.rows.map((row) => {
+        const product = {};
+        for (let i = 0; i < productResult.metaData.length; i++) {
+          product[productResult.metaData[i].name.toLowerCase()] = row[i];
+        }
+        return product;
+      });
+    }
 
     const order = {};
     for (let i = 0; i < result.metaData.length; i++) {
       order[result.metaData[i].name.toLowerCase()] = result.rows[0][i];
     }
-    delete order.password;
 
-    console.log(order);
+    const informationB = transformToInformationBPart2(order, products);
 
-    res.json({
-      date: order.order_date,
-      totalCost: order.total_cost,
-      seller: {
-        shopname: order.owner,
-      },
-      status: order.status,
-      shippingAddress: order.shippingAddress,
-      products: [
-        {
-          id: order.product_id,
-        },
-      ],
-      productsElements: [
-        {
-          name: order.name,
-          price: order.price,
-          images: order.images,
-          customizations: ["Customizations"],
-        },
-      ],
-      subtotal: order.subtotal,
-      shippingCost: order.shipping_cost,
-      tax: order.tax,
-    });
+    console.log(informationB);
+    res.json(informationB);
   } catch (error) {
     res.status(500).json({ msg: "server error" });
     console.log(error);
@@ -190,63 +258,47 @@ export const placeOrderController = async (req, res) => {
     console.log(products);
     console.log(orders);
 
-    const finalOrders = [];
-    let orderEntry;
-    const currentDate = new Date();
-    console.log(currentDate);
-    for (const [seller, items] of orders) {
-      const subtotal = items.reduce((p, el) => {
-        return p + products.find((e) => e.product_id === el.product_id).price;
-      }, 0);
-      console.log(subtotal);
-      const tax = Math.round(0.08 * subtotal);
-      const shippingCost = 6000;
-      const totalCost = subtotal + tax + shippingCost;
-      orderEntry = await connection.execute(
-        `INSERT INTO orders (useremail, order_date, shipping_address, total_cost, subtotal, shipping_cost, tax)
-        VALUES (:email, :currentDate, :address, :total, :subtotal, :shipping_cost, :tax)`,
-        [email, currentDate, address, totalCost, subtotal, shippingCost, tax],
-        { autoCommit: true }
-      );
-      const o = {
-        owner: email,
-        seller,
-        date: currentDate,
-        shippingAdress: address,
-        products: items,
+    let totalCost, shippingCost, tax;
+    let subtotal = 0;
+    let sellers = [];
+    for (let i = 0; i < products.length; i++) {
+      subtotal += products[i].price * carts[i].count;
+      sellers.push(products[i].owner);
+    }
+
+    tax = Math.round(0.08 * subtotal);
+    shippingCost = 6000;
+    totalCost = subtotal + tax + shippingCost;
+    const order_id_result = await connection.execute(
+      `BEGIN :order_id := insert_order(:email, :address, :totalCost, :subtotal, :shippingCost, :tax); END;`,
+      {
+        email,
+        address,
         totalCost,
         subtotal,
         shippingCost,
         tax,
-      };
-      finalOrders.push(o);
-    }
-
-    const getOrder = await connection.execute(
-      `SELECT order_id
-      FROM orders
-      WHERE order_date = :currentDate`,
-      [currentDate]
+        order_id: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+      },
+      { autoCommit: true }
     );
 
-    const order_id = getOrder.rows[0][0];
+    const order_id = order_id_result.outBinds.order_id;
+    console.log("Last inserted order_id:", order_id);
 
     for (let i = 0; i < products.length; i++) {
       const product_id = products[i].product_id;
       const count = carts[i].count;
       const unit_price = products[i].price;
       const total_price = unit_price * count;
-      const seller = finalOrders[i].seller;
+      const seller = sellers[i];
       await connection.execute(
-        `INSERT INTO order_items (order_id, seller, product_id, quantity, unit_price, total_price)
+        `INSERT INTO order_item (order_id, seller, product_id, quantity, unit_price, total_price)
           values (:order_id, :seller, :product_id, :count, :unit_price, :total_price)`,
         [order_id, seller, product_id, count, unit_price, total_price],
         { autoCommit: true }
       );
     }
-
-    console.log("final orders: ");
-    console.log(finalOrders);
     res.json({ msg: "order added successfully" });
   } catch (error) {
     res.status(500).json({ msg: "server error" });

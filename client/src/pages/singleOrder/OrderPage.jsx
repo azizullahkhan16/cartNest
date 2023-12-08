@@ -55,10 +55,6 @@ const OrderPage = () => {
                   ${data.totalCost / 100}
                 </p>
               </div>
-              <span>seller:</span>
-              <Link className="text-blue-400 ml-2 hover:text-blue-600">
-                {data.seller.shopName}
-              </Link>
             </div>
 
             {/* status */}
@@ -133,7 +129,7 @@ const OrderPage = () => {
               <div className="mt-2 max-w-2xl [&>*:nth-child(even)]:bg-slate-100">
                 <div className="flex justify-between p-1 ">
                   <p>Elements:</p>
-                  <p>#{data.products.length}</p>
+                  <p>#{data.productsElements.length}</p>
                 </div>
                 <div className="flex md justify-between p-1  ">
                   <p>Subtotal:</p>
@@ -160,10 +156,7 @@ const OrderPage = () => {
               <p className="text-lg font-semibold text-zinc-500 ">Items:</p>
               {/* items */}
               {data.productsElements.map((el, idx) => {
-                // const cus = data.products.find(
-                //   (c) => c.id === el._id
-                // ).customizations;
-                return <OrderProductItem product={el} customizations={{}} />;
+                return <OrderProductItem product={el} />;
               })}
             </div>
           </>
