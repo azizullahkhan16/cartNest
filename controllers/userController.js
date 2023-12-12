@@ -13,14 +13,14 @@ export const getProfileController = async (req, res) => {
      COUNT(o.order_id) AS order_count
      FROM
      (((Buyer b
-     LEFT JOIN (SELECT * FROM cart WHERE is_deleted = 0) c ON c.useremail = email)
-     LEFT JOIN (SELECT * FROM wishlist WHERE is_deleted = 0) w ON w.useremail = email)
+     LEFT JOIN (SELECT * FROM cart WHERE useremail = :userEmail and is_deleted = 0) c ON c.useremail = email)
+     LEFT JOIN (SELECT * FROM wishlist WHERE useremail = :userEmail and is_deleted = 0) w ON w.useremail = email)
      LEFT JOIN orders o ON o.useremail = b.email)
    WHERE
      email = :userEmail
    GROUP BY
      first_name, last_name, phone, address, image `,
-      [userEmail]
+      [userEmail, userEmail, userEmail]
     );
 
     if (result.rows.length === 0) {

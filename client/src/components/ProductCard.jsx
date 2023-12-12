@@ -67,9 +67,6 @@ const ProductCard = ({ data }) => {
               {data.name}{" "}
             </h3>
             <div className="text-primary">
-              <p className="text-sm md:text-base font-bold line-through">
-                {(data.price / 100).toFixed(2)}$
-              </p>
               <p className="text-xs md:text-sm font-bold">
                 {" "}
                 {(data.price / 100).toFixed(2)}$

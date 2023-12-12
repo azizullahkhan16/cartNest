@@ -151,11 +151,17 @@ const Login = () => {
                   }}
                   className="w-full px-3 py-1 rounded-full outline-none border shadow-sm"
                 >
-                  <option value="clothing">None</option>
-                  <option value="clothing">Clothing Store</option>
-                  <option value="electronics">Electronics Store</option>
-                  <option value="grocery">Grocery Store</option>
-                  <option value="bookstore">Bookstore</option>
+                  <option value="none">None</option>
+                  <option value="clothing">Clothing</option>
+                  <option value="beauty">Beauty and Personal Care</option>
+                  <option value="electronics">Electronics</option>
+                  <option value="garden">Home and Garden</option>
+                  <option value="health">Health and Wellness</option>
+                  <option value="sports">Sports and Outdoors</option>
+                  <option value="baby">Baby and Kids</option>
+                  <option value="food">Food and Beverages</option>
+                  <option value="automotive">Automotive</option>
+                  <option value="Others">Others</option>
                 </select>
               </div>
             </div>

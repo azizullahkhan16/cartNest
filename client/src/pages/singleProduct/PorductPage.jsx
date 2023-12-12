@@ -178,7 +178,6 @@ const ProductPage = () => {
               </div>
 
               <div className="mt-2 flex items-center space-x-3">
-                <p className="line-through ">{data.price / 100}$</p>
                 <p className="text-xl  ">{data.price / 100}$</p>
               </div>
               {/* description */}

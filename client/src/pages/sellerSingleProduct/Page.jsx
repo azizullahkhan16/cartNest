@@ -19,6 +19,7 @@ const SellerSingleProduct = () => {
   const [editStockData, setEditStockData] = useState({ mode: "ADD", value: 0 });
   const [stockLoading, setStockLoading] = useState(false);
   const [err, setErr] = useState("");
+  const productPrice = data?.price / 100;
 
   const handleEditSubmit = async () => {
     if (
@@ -227,8 +228,7 @@ const SellerSingleProduct = () => {
               </div>
               <div className="mt-2 flex items-center space-x-3">
                 <h2 className="text-xl  ">Price:</h2>
-                <p className="line-through ">{data.price.toFixed(2)}</p>
-                <p className="text-xl  ">{data.price.toFixed(2)}</p>
+                <p className="text-xl  ">{productPrice?.toFixed(2)}</p>
               </div>
               {/* description */}
               <p className="mt-4">{data.description}</p>
