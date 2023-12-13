@@ -8,31 +8,53 @@ export const getProfileController = async (req, res) => {
     connection = await connectDB();
     const userEmail = getJwtEmail(req);
     const result = await connection.execute(
-      `SELECT first_name, last_name, phone, address, image,
-     COUNT(c.cart_id) AS cart_count, COUNT(w.wishlist_id) AS wishlist_count,
-     COUNT(o.order_id) AS order_count
-     FROM
-     (((Buyer b
-     LEFT JOIN (SELECT * FROM cart WHERE useremail = :userEmail and is_deleted = 0) c ON c.useremail = email)
-     LEFT JOIN (SELECT * FROM wishlist WHERE useremail = :userEmail and is_deleted = 0) w ON w.useremail = email)
-     LEFT JOIN orders o ON o.useremail = b.email)
-   WHERE
-     email = :userEmail
-   GROUP BY
-     first_name, last_name, phone, address, image `,
-      [userEmail, userEmail, userEmail]
+      `SELECT first_name, last_name, phone, address, image
+        FROM Buyer
+        WHERE email = :userEmail`,
+      [userEmail]
     );
 
     if (result.rows.length === 0) {
       return res.status(404).json({ success: false, msg: "User not found" });
     }
 
+    const wishlist = await connection.execute(
+      `SELECT COUNT(wishlist_id)
+      FROM wishlist
+      WHERE useremail = :userEmail AND is_deleted = 0`,
+      [userEmail]
+    );
+
+    const cart = await connection.execute(
+      `SELECT COUNT(cart_id)
+      FROM cart
+      WHERE useremail = :userEmail AND is_deleted = 0`,
+      [userEmail]
+    );
+
+    const orders = await connection.execute(
+      `SELECT COUNT(order_id)
+      FROM orders
+      WHERE useremail = :userEmail`,
+      [userEmail]
+    );
+
     const profile = {};
     for (let i = 0; i < result.metaData.length; i++) {
       profile[result.metaData[i].name.toLowerCase()] = result.rows[0][i];
     }
-    console.log(profile);
-    res.json(profile);
+    console.log({
+      ...profile,
+      wishlist_count: wishlist.rows[0][0],
+      cart_count: cart.rows[0][0],
+      order_count: orders.rows[0][0],
+    });
+    res.json({
+      ...profile,
+      wishlist_count: wishlist.rows[0][0],
+      cart_count: cart.rows[0][0],
+      order_count: orders.rows[0][0],
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, msg: "Server error" });
