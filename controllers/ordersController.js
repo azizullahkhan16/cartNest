@@ -68,11 +68,7 @@ export const getOrderController = async (req, res) => {
     connection = await connectDB();
     const result = await connection.execute(
       `SELECT *
-      FROM (
-          (orders o
-          LEFT JOIN seller s ON s.email = o.useremail)
-          LEFT JOIN store st ON st.store_owner = s.seller_id
-          )
+      FROM orders o
       WHERE o.useremail = :email
       ORDER BY o.order_date DESC`,
       [email]
@@ -300,6 +296,49 @@ export const placeOrderController = async (req, res) => {
       );
     }
     res.json({ msg: "order added successfully" });
+  } catch (error) {
+    res.status(500).json({ msg: "server error" });
+    console.log(error);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (error) {
+        console.error("Error closing connection: ", error);
+      }
+    }
+  }
+};
+
+export const getSellerOrderController = async (req, res) => {
+  let connection;
+  const email = getJwtEmail(req);
+  try {
+    connection = await connectDB();
+    const result = await connection.execute(
+      `SELECT *
+      FROM (order_item oi
+        LEFT JOIN orders o ON o.order_id = oi.order_id)
+      WHERE oi.seller = :email`,
+      [email]
+    );
+
+    let orders;
+    if (result.rows.length != 0) {
+      // Convert ResultSet to an array of objects
+      orders = result.rows.map((row) => {
+        const order = {};
+        for (let i = 0; i < result.metaData.length; i++) {
+          order[result.metaData[i].name.toLowerCase()] = row[i];
+        }
+        return order;
+      });
+
+      console.log(orders);
+      res.json(orders);
+    } else {
+      res.json({ msg: "No orders found" });
+    }
   } catch (error) {
     res.status(500).json({ msg: "server error" });
     console.log(error);

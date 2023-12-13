@@ -6,6 +6,10 @@ import {
   getSellerProductsController,
   getSellerSingleProductController,
 } from "../controllers/productsController.js";
+import {
+  getOrderController,
+  getSellerOrderController,
+} from "../controllers/ordersController.js";
 
 const sellerRouter = express.Router();
 
@@ -16,5 +20,6 @@ sellerRouter.post("/editstock", editStockController);
 
 sellerRouter.get("/products", getSellerProductsController);
 sellerRouter.get("/products/:id", getSellerSingleProductController);
+sellerRouter.get("/orders", getSellerOrderController);
 
 export default sellerRouter;
